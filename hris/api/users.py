@@ -1,5 +1,5 @@
 from hris.utils import hash_password, gen_access_token, decode_access_token
-from flask import request, abort, jsonify, g
+from flask import request, abort, jsonify, g, current_app
 from functools import wraps
 
 from hris.api import api
@@ -8,7 +8,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from hris import db_session
 
 #auth
-
+import re
 ###
 from hris.models import (
     User, 
@@ -38,10 +38,41 @@ from hris.api.auth import (
 )
 
 
-def validate_password(json):
-
-    print(json)
-    return 'thnak you'
+def validate_password(password, user_name):
+    '''This is to be validated'''
+    print(password, user_name)
+    validated = True
+    message = ''
+    password = password.strip()
+    policy = db_session.query(PasswordPolicy).filter(PasswordPolicy.id == 1).one()
+    policy = policy.to_dict()
+    print(policy)
+    max_len = policy.get('max_len', None)
+    if max_len is not None:
+        if len(password) > int(max_len):
+            message = 'Password length should be less than %d' % int(max_len)
+            
+            return False, message 
+    min_len = policy.get('min_len', None)
+    if min_len is not None:
+        if len(password) <= int(min_len):
+            message = 'Password length should be more than %d' % min_len
+            
+            return False, message
+    if policy.get('upper_case', False):
+        if not re.search(r'[A-Z]', password):
+            message = 'Password must contain atleast on Uppercase character'
+            validated = False
+            return validated, message
+    if policy.get('special_character', False):
+        if not re.search(r'[^A-Za-z0-9]', password):
+            message = 'Password must contain atleast one special character Eg: #$&*@'
+            return False, message
+    if policy.get('similar_username', False):
+        if password == user_name:
+            message = 'Password cannot be same as your username'
+            return False, message
+    return validated, message
 
 
 @api.route('/users', methods=['POST'])
@@ -71,7 +102,7 @@ def register_user():
             db_session.commit()
         except IntegrityError as ie:
         #hadle the error heres
-            print(ie)
+            
             return record_exists_envelop()
         
 
@@ -120,8 +151,13 @@ def register_user():
 
     #lower case the user_name
         user_name = request.json['user_name'].strip().lower()
+
         role_id = request.json['role_id']
-        hashed_pass = hash_password(request.json['password'].encode())
+        result, err = validate_password(request.json.get('password'), user_name)
+        
+        if result == False:
+            return jsonify({'Message' : err})
+        hashed_pass = hash_password(request.json['password'].strip().encode())
     #get the user access_token
         user_access_token = gen_access_token(role_id, user_name)
         user = User(user_name=user_name, password=hashed_pass, role_id=role_id, access_token=user_access_token.decode('utf-8'))
@@ -179,7 +215,9 @@ def add_password_policy():
         return jsonify({'Message' : 'Extra Keys : %r' % ', '.join(col for col in extra_keys)})
     
     try:
-        db_session.query(PasswordPolicy).filter(PasswordPolicy.id == 1).update(request.json)
+        _bool_mapper = lambda s : 0 if s == 'false' else 1
+        _json = {key : _bool_mapper(val) if val in ('true', 'false') else val for key, val in request.json.items()}
+        db_session.query(PasswordPolicy).filter(PasswordPolicy.id == 1).update(_json)
         db_session.commit()
     except NoResultFound as e:
         abort(404)
@@ -240,10 +278,17 @@ def update_user(u_id):
         if 'password' not in request.json.keys():
             return missing_keys_envelop()
         try:
+            
             user = db_session.query(User).filter(User.id==u_id).one()
             if user is None:
                 return record_notfound_envelop()
-            hashed_pass = hash_password(request.json['password'].encode())
+            result, err = validate_password(request.json.get('password'), user.user_name)
+            print(result)
+            if result == False:
+                return jsonify({'Message' : err})
+            print('GOt here ----------')
+
+            hashed_pass = hash_password(request.json['password'].strip().encode())
             old_hashed_pass = user.password
             if old_hashed_pass == hashed_pass:
                 return jsonify({'message' : 'Please dont\'t use old password', 'status': 'fail'})
