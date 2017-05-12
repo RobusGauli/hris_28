@@ -68,7 +68,7 @@ def create_facility():
 @api.route('/districts', methods=['POST'])
 @create_update_permission('company_management_perm')
 def create_district():
-    if not set(request.json.keys()) == {'name'}:
+    if not set(request.json.keys()) == {'name', 'district_code', 'province_id'}:
         return jsonify({'message' : 'missing keys'})
     
     if not len(request.json['name']) > 3:
@@ -77,13 +77,17 @@ def create_district():
     #lower case the facility name
     display_name = request.json['name'].strip()
     name = request.json['name'].replace(' ','').lower().strip()
+    district_code = request.json['district_code']
+    province_id = request.json['province_id']
+
 
     #insert into the database
     try:
-        dis = District(name=name, display_name=display_name)
+        dis = District(name=name, display_name=display_name, district_code=district_code, province_id=province_id)
         db_session.add(dis)
         db_session.commit()
     except IntegrityError as ie:
+        raise
         return record_exists_envelop()
     
     else:
@@ -93,19 +97,20 @@ def create_district():
 @api.route('/llg', methods=['POST'])
 @create_update_permission('company_management_perm')
 def create_llg():
-    if not set(request.json.keys()) == {'name'}:
+    if not set(request.json.keys()) == {'name', 'llg_code', 'district_id'}:
         return jsonify({'message' : 'missing keys'})
     
     if not len(request.json['name']) > 3:
-        return jsonify({'message' : 'not adequate lenght'})
+        return jsonify({'message' : 'not adequate length'})
     
     #lower case the facility name
     display_name = request.json['name'].strip()
     name = request.json['name'].replace(' ', '').lower().strip()
-
+    llg_code = request.json['llg_code']
+    district_id = request.json['district_id']
     #insert into the database
     try:
-        dis = LLG(name=name, display_name=display_name)
+        dis = LLG(name=name, display_name=display_name, llg_code=llg_code, district_id=district_id)
         db_session.add(dis)
         db_session.commit()
     except IntegrityError as ie:
@@ -118,19 +123,24 @@ def create_llg():
 @api.route('/provinces', methods=['POST'])
 @create_update_permission('company_management_perm')
 def create_province():
-    if not set(request.json.keys()) == {'name'}:
+    if not set(request.json.keys()) == {'name', 'province_code', 'region_id'}:
         return jsonify({'message' : 'missing keys'})
     
     if not len(request.json['name']) > 3:
-        return jsonify({'message' : 'not adequate lenght'})
+        return jsonify({'message' : 'not adequate length'})
     
     #lower case the facility name
     display_name = request.json['name'].strip()
     name = request.json['name'].replace(' ', '').lower().strip()
-
+    province_code = request.json['province_code'].upper().strip()
+    region_id = request.json['region_id']
     #insert into the database
     try:
-        dis = Province(name=name, display_name=display_name)
+        dis = Province(
+            name=name,
+            display_name=display_name,
+            province_code=province_code,
+            region_id=region_id)
         db_session.add(dis)
         db_session.commit()
     except IntegrityError as ie:
@@ -145,7 +155,7 @@ def create_province():
 @api.route('/regions', methods=['POST'])
 @create_update_permission('company_management_perm')
 def create_region():
-    if not set(request.json.keys()) == {'name'}:
+    if not set(request.json.keys()) == {'name', 'region_code'}:
         return jsonify({'message' : 'missing keys'})
     
     if not len(request.json['name']) > 3:
@@ -154,10 +164,11 @@ def create_region():
     #lower case the facility name
     display_name = request.json['name'].strip()
     name = request.json['name'].replace(' ', '').lower().strip()
+    region_code = request.json['region_code']
 
     #insert into the database
     try:
-        dis = Region(name=name, display_name=display_name)
+        dis = Region(name=name, display_name=display_name, region_code=region_code)
         db_session.add(dis)
         db_session.commit()
     except IntegrityError as ie:
@@ -186,8 +197,8 @@ def get_facilities():
 def get_llg():
     
     try:
-        llgs = db_session.query(LLG).order_by(LLG.name).all()
-        gen_exp = (dict(name = f.display_name, id=f.id) for f in llgs)
+        llgs = db_session.query(LLG).filter(LLG.del_flag==False).order_by(LLG.name).all()
+        gen_exp = (f.to_dict() for f in llgs)
         return records_json_envelop(list(gen_exp))
     except Exception as e:
         return fatal_error_envelop()
@@ -198,8 +209,8 @@ def get_llg():
 def get_districts():
     
     try:
-        districts = db_session.query(District).order_by(District.name).all()
-        gen_exp = (dict(name = f.display_name, id=f.id) for f in districts)
+        districts = db_session.query(District).filter(District.del_flag==False).order_by(District.name).all()
+        gen_exp = (f.to_dict() for f in districts)
         return records_json_envelop(list(gen_exp))
     except Exception as e:
         return fatal_error_envelop()
@@ -209,10 +220,11 @@ def get_districts():
 def get_provinces():
     
     try:
-        provinces = db_session.query(Province).order_by(Province.name).all()
-        gen_exp = (dict(name = f.display_name, id=f.id) for f in provinces)
+        provinces = db_session.query(Province).filter(Province.del_flag==False).order_by(Province.name).all()
+        gen_exp = (p.to_dict() for p in provinces)
         return records_json_envelop(list(gen_exp))
     except Exception as e:
+        raise
         return fatal_error_envelop()
 
 
@@ -221,8 +233,8 @@ def get_provinces():
 def get_regions():
     
     try:
-        provinces = db_session.query(Region).order_by(Region.name).all()
-        gen_exp = (dict(name = f.display_name, id=f.id) for f in provinces)
+        provinces = db_session.query(Region).filter(Region.del_flag=='False').order_by(Region.name).all()
+        gen_exp = (dict(name = f.display_name, id=f.id, region_code=f.region_code if f.region_code else '') for f in provinces)
         return records_json_envelop(list(gen_exp))
     except Exception as e:
         return fatal_error_envelop()
@@ -265,18 +277,23 @@ def update_llg(id):
     if not request.json:
         abort(400)
     
-    if 'name' not in request.json.keys():
-        abort(401)
-    
-    #now try to update the facilty name
-    name = request.json['name'].replace(' ', '').lower().strip()
-    display_name = request.json['name'].strip()
+    #clearn up the json_request
+    _cleaner = lambda s : s.strip() if isinstance(s, str) else s
+    _request = {key: _cleaner(val) for key, val in request.json.items()}
+
+    #remove the id field
+    if 'id' in request.json:
+        del request['id']
 
     try:
-        facility = db_session.query(LLG).filter(LLG.id==id).one()
-        facility.name = name
-        facility.display_name = display_name
-        db_session.add(facility)
+        #for oracle
+        #_bool_mapper = lambda s : 0 if s == 'false' else 1
+        #for oracle
+        _bool_mapper = lambda s : s
+        _json = {key : _bool_mapper(val) if val in ('true', 'false') else val for key, val in _request.items()}
+    
+        db_session.query(District).filter(District.id == id).update(_json)
+       
         db_session.commit()
     except NoResultFound as e:
         abort(404)
@@ -287,7 +304,18 @@ def update_llg(id):
         abort(500)
     else:
         return record_updated_envelop(request.json)
-
+@api.route('/llg/<int:id>', methods=['DELETE'])
+def delete_llg(id):
+    try:
+        p = db_session.query(LLG).filter(LLG.id == id).one()
+        db_session.delete(p)
+        db_session.commit()
+    except NoResultFound as e:
+        abort(404)
+    except Exception as e:
+        abort(500)
+    else:
+        return jsonify({'code' : 200, 'status' : 'success', 'message' : 'deleted successfully'})
 
 @api.route('/districts/<int:id>', methods=['PUT'])
 @create_update_permission('company_management_perm')
@@ -295,18 +323,23 @@ def update_district(id):
     if not request.json:
         abort(400)
     
-    if 'name' not in request.json.keys():
-        abort(401)
-    
-    #now try to update the facilty name
-    name = request.json['name'].replace(' ', '').lower().strip()
-    display_name = request.json['name'].strip()
+    #clearn up the json_request
+    _cleaner = lambda s : s.strip() if isinstance(s, str) else s
+    _request = {key: _cleaner(val) for key, val in request.json.items()}
+
+    #remove the id field
+    if 'id' in request.json:
+        del request['id']
 
     try:
-        facility = db_session.query(District).filter(District.id==id).one()
-        facility.name = name
-        facility.display_name = display_name
-        db_session.add(facility)
+        #for oracle
+        #_bool_mapper = lambda s : 0 if s == 'false' else 1
+        #for oracle
+        _bool_mapper = lambda s : s
+        _json = {key : _bool_mapper(val) if val in ('true', 'false') else val for key, val in _request.items()}
+    
+        db_session.query(District).filter(District.id == id).update(_json)
+       
         db_session.commit()
     except NoResultFound as e:
         abort(404)
@@ -317,27 +350,43 @@ def update_district(id):
     else:
         return record_updated_envelop(request.json)
 
-    
+@api.route('/districts/<int:id>', methods=['DELETE'])
+def delete_district(id):
+    try:
+        p = db_session.query(District).filter(District.id == id).one()
+        db_session.delete(p)
+        db_session.commit()
+    except NoResultFound as e:
+        abort(404)
+    except Exception as e:
+        abort(500)
+    else:
+        return jsonify({'code' : 200, 'status' : 'success', 'message' : 'deleted successfully'}) 
 
 @api.route('/provinces/<int:id>', methods=['PUT'])
 @create_update_permission('company_management_perm')
 def update_province(id):
     if not request.json:
         abort(400)
-    
-    if 'name' not in request.json.keys():
-        abort(401)
-    
-    #now try to update the facilty name
-    name = request.json['name'].replace(' ', '').lower().strip()
-    display_name = request.json['name'].strip()
+   #clearn up the json_request
+    _cleaner = lambda s : s.strip() if isinstance(s, str) else s
+    _request = {key: _cleaner(val) for key, val in request.json.items()}
+
+    #remove the id field
+    if 'id' in request.json:
+        del request['id']
 
     try:
-        facility = db_session.query(Province).filter(Province.id==id).one()
-        facility.name = name
-        facility.display_name = display_name
-        db_session.add(facility)
+        #for oracle
+        #_bool_mapper = lambda s : 0 if s == 'false' else 1
+        #for oracle
+        _bool_mapper = lambda s : s
+        _json = {key : _bool_mapper(val) if val in ('true', 'false') else val for key, val in _request.items()}
+    
+        db_session.query(Province).filter(Province.id == id).update(_json)
+       
         db_session.commit()
+        
     except NoResultFound as e:
         abort(404)
     except IntegrityError as e:
@@ -348,6 +397,18 @@ def update_province(id):
     else:
         return record_updated_envelop(request.json)
 
+@api.route('/provinces/<int:id>', methods=['DELETE'])
+def delete_province(id):
+    try:
+        p = db_session.query(Province).filter(Province.id == id).one()
+        db_session.delete(p)
+        db_session.commit()
+    except NoResultFound as e:
+        abort(404)
+    except Exception as e:
+        abort(500)
+    else:
+        return jsonify({'code' : 200, 'status' : 'success', 'message' : 'deleted successfully'})
     
 @api.route('/regions/<int:id>', methods=['PUT'])
 @create_update_permission('company_management_perm')
@@ -355,25 +416,35 @@ def update_region(id):
     if not request.json:
         abort(400)
     
-    if 'name' not in request.json.keys():
-        abort(401)
+    #clearn up the json_request
+    _cleaner = lambda s : s.strip() if isinstance(s, str) else s
+    _request = {key: _cleaner(val) for key, val in request.json.items()}
+
+    #remove the id field
+    if 'id' in request.json:
+        del request['id']
     
-    #now try to update the facilty name
-    name = request.json['name'].replace(' ', '').lower().strip()
-    display_name = request.json['name'].strip()
+
 
     try:
-        facility = db_session.query(Region).filter(Region.id==id).one()
-        facility.name = name
-        facility.display_name = display_name
-        db_session.add(facility)
+        #for oracle
+        #_bool_mapper = lambda s : 0 if s == 'false' else 1
+        #for oracle
+        _bool_mapper = lambda s : s
+        _json = {key : _bool_mapper(val) if val in ('true', 'false') else val for key, val in _request.items()}
+    
+        db_session.query(Region).filter(Region.id == id).update(_json)
+        #facility = db_session.query(Region).filter(Region.id==id).one()
+        #facility.name = name
+        #facility.display_name = display_name
+        #db_session.add(facility)
         db_session.commit()
     except NoResultFound as e:
         abort(404)
     except IntegrityError as e:
         return record_exists_envelop()
     except Exception as e:
-        
+        raise
         abort(500)
     else:
         return record_updated_envelop(request.json)
@@ -382,7 +453,18 @@ def update_region(id):
 
 
     
-
+@api.route('/regions/<int:id>', methods=['DELETE'])
+def delete_region(id):
+    try:
+        p = db_session.query(Region).filter(Region.id == id).one()
+        db_session.delete(p)
+        db_session.commit()
+    except NoResultFound as e:
+        abort(404)
+    except Exception as e:
+        abort(500)
+    else:
+        return jsonify({'code' : 200, 'status' : 'success', 'message' : 'deleted successfully'})
 
 
 

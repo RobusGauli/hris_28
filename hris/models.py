@@ -14,6 +14,8 @@ from sqlalchemy import (
     Sequence
 )
 
+
+
 #default
 #onupdate
 
@@ -26,7 +28,14 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Sequence
 
 from hris import Base
+##little hack to work in postgres
+#################################
+#should e deleted in oracle db
+def dummy_sequence(name):
+    return None
 
+Sequence = dummy_sequence
+##########################################
 class User(Base):
     __tablename__ = 'users'
 
@@ -235,10 +244,22 @@ class LLG(Base):
 
     id = Column(Integer, Sequence('llg_id'),primary_key=True)
     name = Column(String(100), unique=True, nullable=False)
+    llg_code = Column(String(3), unique=True, nullable=False)
     display_name = Column(String(200), unique=True, nullable=False)
     del_flag = Column(Boolean, default=False)
     branches = relationship('Branch', back_populates='llg', cascade='all, delete, delete-orphan')
+    district_id = Column(Integer, ForeignKey('districts.id'))
+    district = relationship('District', back_populates='llgs')
 
+    def to_dict(self):
+        return {
+            'id' : self.id,
+            'name' : self.display_name if self.display_name else '',
+            'llg_code' : self.llg_code if self.llg_code else '',
+            'district' : self.district.display_name if self.district.display_name else '',
+            'district_id' : self.district_id if self.district_id else '',
+            
+        }
 
 
 class District(Base):
@@ -246,29 +267,66 @@ class District(Base):
     
     id = Column(Integer, Sequence('districts_id'), primary_key=True)
     name = Column(String(100), unique=True, nullable=False)
+    district_code = Column(String(5), unique=True, nullable=False)
     display_name = Column(String(200), unique=True, nullable=False)
     del_flag = Column(Boolean, default=False)
+
     branches = relationship('Branch', back_populates='district', cascade='all, delete, delete-orphan')
+    province_id = Column(Integer, ForeignKey('provinces.id'), nullable=False)
+    province = relationship('Province', back_populates='districtss')
+
+    llgs = relationship('LLG', back_populates='district', cascade='all, delete, delete-orphan')
+
+    def to_dict(self):
+        return {
+            'id' : self.id,
+            'name' : self.display_name if self.display_name else '',
+            'district_code' : self.district_code if self.district_code else '',
+            'province' : self.province.display_name if self.province.display_name else '',
+            'province_id' : self.province_id if self.province_id else '',
+            'llgs' : [
+                { 'name' : l.display_name if l.display_name else ''} for l in self.llgs
+            ]
+            
+        }
 
 class Province(Base):
     __tablename__ = 'provinces'
     
     id = Column(Integer, Sequence('provinces_id'), primary_key=True)
     name = Column(String(100), unique=True, nullable=False)
+    province_code = Column(String(5), unique=True, nullable=False)
     display_name = Column(String(200), unique=True, nullable=False)
     del_flag = Column(Boolean, default=False)
     branches = relationship('Branch', back_populates='province', cascade='all, delete, delete-orphan')
+
+    region_id = Column(Integer, ForeignKey('regions.id'), nullable=False)
+    region = relationship('Region', back_populates='provinceses')
+    districtss = relationship('District', back_populates='province', cascade='all, delete, delete-orphan')
+
+    def to_dict(self):
+        return {
+            'id' : self.id,
+            'province_code' : self.province_code if self.province_code else '',
+            'name' : self.display_name if self.display_name else '',
+            'region' : self.region.display_name if self.region.display_name else '',
+            'region_id' : self.region_id if self.region_id else '',
+            'districts' : [
+                {'name' : d.display_name if d.display_name else ''} for d in self.districtss
+            ] 
+        }
 
 class Region(Base):
     __tablename__ = 'regions'
 
     id = Column(Integer, Sequence('region_id'),primary_key=True)
     name = Column(String(100), unique=True, nullable=False)
+    region_code = Column(String(5), unique=True, nullable=False)
     display_name = Column(String(200), unique=True, nullable=False)
     del_flag = Column(Boolean, default=False)
 
     branches = relationship('Branch', back_populates='region', cascade='all, delete, delete-orphan')
-
+    provinceses = relationship('Province', back_populates='region', cascade='all, delete, delete-orphan')
 
 
 

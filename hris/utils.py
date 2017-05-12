@@ -132,7 +132,7 @@ def handle_keys_for_update_request(model,  _exclude=None):
             if not request.json:
                 abort(400)
             required_keys = fields_db - set(_exclude) if _exclude else set()
-            result = request.json.keys() - required_keys
+            result = set(request.json.keys()) - required_keys
             if result:
                 return extra_keys_envelop('Keys not Accepeted %r' % (', '.join(key for key in result)))
             #check if there are any missing keys
