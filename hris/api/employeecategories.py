@@ -22,7 +22,9 @@ from hris.models import (
     EmployeeExtra,
     Qualification,
     Certification,
-    Training
+    Training,
+    EmployeePosition
+
 )
 
 
@@ -36,7 +38,8 @@ from hris.api.response_envelop import (
     record_not_updated_env,
     fatal_error_envelop,
     missing_keys_envelop, 
-    length_require_envelop
+    length_require_envelop,
+    extra_keys_envelop
 )
 from hris.api.auth import (
     allow_permission, 
@@ -311,4 +314,38 @@ def get_employees_by_category(c_id):
         employees = cat.employees
         return records_json_envelop(list(emp.to_dict() for emp in employees))
     
-        
+
+
+@api.route('/emppositions', methods=['POST'])
+def create_emp_position():
+    if not request.json:
+        abort(401)
+    required_fields = set(col.name for col in EmployeePosition.__mapper__.columns) - {'id', 'emp_pos_title_display_name'}
+    
+    extra_fields = set(request.json) - required_fields
+    if extra_fields:
+        return extra_keys_envelop('Unknown Keys : %s' % ', '.join(key for key in extra_fields))
+    
+    _required = required_fields - set(request.json)
+
+    if _required:
+        return missing_keys_envelop('Required Keys : %s' % ', '.join(key for key in _required))
+    
+    #check to see if there is any blank 
+
+    if not all(len(val.strip()) > 1 for key, val in request.json.items() if isinstance(val, str)):
+        return length_require_envelop()
+    #inject 
+    request.json['emp_pos_title_display_name'] = request.json['emp_pos_title']
+    request.json['emp_pos_title'] = request.json['emp_pos_title'].lower().strip()
+    #initiate the dession
+    try:
+        e_type = EmployeePosition(**request.json)
+        db_session.add(e_type)
+        db_session.commit()
+    except IntegrityError as e:
+        return record_exists_envelop()
+    except Exception as e:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)

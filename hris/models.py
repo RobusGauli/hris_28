@@ -362,6 +362,18 @@ class EmployeeCategory(Base):
 
 #lets hardcord the grade of the employee
 
+class EmployeePosition(Base):
+    __tablename__  = 'employeespositions'
+
+    id = Column(Integer, Sequence('emp_pos_id'), primary_key=True)
+    emp_pos_code = Column(String(10), unique=True, nullable=False)
+    emp_pos_title = Column(String(40), unique=True, nullable=False)
+    emp_pos_title_display_name = Column(String(40), nullable=False)
+    emp_pos_sequence = Column(Integer, nullable=False)
+    #relationship
+    employees = relationship('Employee', back_populates='employee_position', cascade='all, delete, delete-orphan')
+
+
 class EmployeeType(Base):
     __tablename__ = 'emp_types'
 
@@ -408,6 +420,7 @@ class Employee(Base):
     date_of_commencement = Column(Date)
     contract_end_date = Column(Date)
     activate = Column(Boolean, default=True)
+    salutation = Column(String(4), default='Mr')
 
     #about del flag
     del_flag = Column(Boolean, default=False)
@@ -428,7 +441,7 @@ class Employee(Base):
 
     employee_type_id = Column(Integer, ForeignKey('emp_types.id'), nullable=False)
     employee_category_id = Column(Integer, ForeignKey('emp_categories.id'), nullable=False)
-
+    employee_position_id = Column(Integer, ForeignKey('employeespositions.id'), nullable=False)
     #one to one with users table
     user_id = Column(Integer, ForeignKey('users.id'), unique=True)
     user = relationship('User', back_populates='employee')
@@ -439,7 +452,7 @@ class Employee(Base):
     #relationship 
     employee_type = relationship('EmployeeType', back_populates='employees')
     employee_category = relationship('EmployeeCategory', back_populates='employees')
-    
+    employee_position = relationship('EmployeePosition', back_populates='employees')
     #other relationship
     qualifications = relationship('Qualification', back_populates='employee', cascade='all, delete, delete-orphan')
     certifications = relationship('Certification', back_populates='employee', cascade='all, delete, delete-orphan')
