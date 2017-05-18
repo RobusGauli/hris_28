@@ -190,17 +190,18 @@ def update_agency(a_id):
     query = '''UPDATE branches SET {:s} where id = {:d}'''.format(inner, a_id)
     print(query)
     
-    with engine.connect() as con:
-        try:
-            con.execute(query)
-        except IntegrityError as e:
-            return record_exists_envelop()
-        except Exception as e:
-            raise
-            return fatal_error_envelop()
-        else:
-            return record_updated_envelop(json_request)
     
+    try:
+        db_session.query(Branch).filter(Branch.id == a_id).update(json_request)
+        db_session.commit()
+    except IntegrityError as e:
+        return record_exists_envelop()
+    except Exception as e:
+        raise
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(json_request)
+
     
 
 def handle_update_division_keys(model,  exclude=None):

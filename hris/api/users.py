@@ -156,7 +156,7 @@ def register_user():
         result, err = validate_password(request.json.get('password'), user_name)
         
         if result == False:
-            return jsonify({'Message' : err})
+            return jsonify({'message' : err, 'status': 'fail'})
         hashed_pass = hash_password(request.json['password'].strip().encode())
     #get the user access_token
         user_access_token = gen_access_token(role_id, user_name)
