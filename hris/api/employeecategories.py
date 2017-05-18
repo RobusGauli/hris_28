@@ -85,7 +85,7 @@ def get_emp_cat_ranks():
         ranks = db_session.query(EmployeeCategoryRank).order_by(EmployeeCategoryRank.name).all()
         ranks = (dict(id=rank.id,
                       name = rank.display_name) for rank in ranks)
-    except ResultNotFound as e:
+    except NoResultFound as e:
         return record_notfound_envelop()
     except Exception as e:
         return fatal_error_envelop()
@@ -160,7 +160,7 @@ def get_emp_categories():
         ranks = db_session.query(EmployeeCategory).order_by(EmployeeCategory.name).all()
         rks = (dict(id=rank.id, name=rank.display_name, emp_cat_rank=rank.emp_cat_rank.display_name, emp_cat_rank_id=rank.emp_cat_rank.id)
                                                                           for rank in ranks)
-    except ResultNotFound as e:
+    except NoResultFound as e:
         return record_notfound_envelop()
     except Exception as e:
         return fatal_error_envelop()
@@ -239,7 +239,7 @@ def get_employee_types():
     try:
         types = db_session.query(EmployeeType).all()
         tys = (dict(id=ty.id, name=ty.display_name) for ty in types)
-    except ResultNotFound as e:
+    except NoResultFound as e:
         return record_notfound_envelop()
     except Exception as e:
         return fatal_error_envelop()
@@ -356,7 +356,7 @@ def create_emp_position():
 def get_emp_positions():
     try:
         ps = db_session.query(EmployeePosition).all()
-    except ResultNotFound as e:
+    except NoResultFound as e:
         return record_notfound_envelop()
     except Exception as e:
         return fatal_error_envelop()
