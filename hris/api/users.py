@@ -285,7 +285,7 @@ def update_user(u_id):
             result, err = validate_password(request.json.get('password'), user.user_name)
             print(result)
             if result == False:
-                return jsonify({'Message' : err})
+                return jsonify({'message' : err, 'status': 'fail' })
             print('GOt here ----------')
 
             hashed_pass = hash_password(request.json['password'].strip().encode())
