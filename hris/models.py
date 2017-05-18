@@ -187,7 +187,8 @@ class CompanyDetail(Base):
             'free_text_three' : self.free_text_three if self.free_text_three else '',
             'free_text_four' : self.free_text_four if self.free_text_four else '',
             'free_text_five' : self.free_text_five if self.free_text_five else '',
-            'country' : self.country if self.country else '' 
+            'country' : self.country if self.country else '' ,
+            'description' : self.description if self.description else ''
         }
         return data
 
@@ -372,6 +373,14 @@ class EmployeePosition(Base):
     emp_pos_sequence = Column(Integer, nullable=False)
     #relationship
     employees = relationship('Employee', back_populates='employee_position', cascade='all, delete, delete-orphan')
+
+    def to_dict(self):
+        return {
+            'id' : self.id,
+            'emp_pos_code' : self.emp_pos_code if self.emp_pos_code else '',
+            'emp_pos_title' : self.emp_pos_title_display_name if self.emp_pos_title_display_name else '',
+            'emp_pos_sequence': self.emp_pos_sequence if self.emp_pos_sequence else ''
+        }
 
 
 class EmployeeType(Base):

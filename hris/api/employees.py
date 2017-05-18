@@ -82,15 +82,20 @@ def create_employee():
     
     #now clean up the data to insert into database(onyl for strin)
     data = {key : val.strip() if isinstance(val, str) else val for key, val in request.json.items()}
-    data['date_of_birth'] = '01-feb-2017'
-    data['date_of_commencement'] = '02-feb-2011'
-    #now try to insert 
+    
+    #for oracle
+        #data['date_of_birth'] = '01-feb-2017'
+        #data['date_of_commencement'] = '02-feb-2011'
+    #now try to insert
+    #for raocle
+ 
     try:
         
         emp = Employee(**data)
         db_session.add(emp)
         db_session.commit()
     except IntegrityError as e:
+        
         return record_exists_envelop()
     except Exception as e:
         print(e)
@@ -215,7 +220,12 @@ def get_employee(id):
                   'contract_end_date' : emp.contract_end_date if emp.contract_end_date else '',
                   'id' : emp.id if emp.id else '',
                   'user_id' : emp.user_id if emp.user_id else '',
-                  'employee_branch_id' : emp.employee_branch_id if emp.employee_branch_id else ''
+                  'employee_branch_id' : emp.employee_branch_id if emp.employee_branch_id else '',
+                  'employee_branch' : emp.employee_branch.facility_display_name if emp.employee_branch.facility_display_name else '',
+                  'employee_type' : emp.employee_type.display_name if emp.employee_type.display_name else '',
+                  'employee_category' : emp.employee_category.name if emp.employee_category.name else '',
+                  'employee_position' : emp.employee_position.emp_pos_title_display_name if emp.employee_position.emp_pos_title_display_name else '',
+                  'is_branch' : emp.is_branch if emp.is_branch else ''
                                     
 
         })
@@ -328,8 +338,8 @@ def create_certification_by_emp(id):
     #insert
     cert['employee_id'] = id
     ###################################
-    cert['expiry_date'] = '04-mar-2012'
-    cert['last_renewal_date'] = '03-mar-2017'
+    #cert['expiry_date'] = '04-mar-2012'
+    #cert['last_renewal_date'] = '03-mar-2017'
     ################################
     try:
         
@@ -358,7 +368,12 @@ def get_certifications_by_emp(id):
             'regulatory_body' : q.regulatory_body if q.regulatory_body else '',
             'registration_type' : q.registration_type if q.registration_type else '',
             'last_renewal_date' : str(q.last_renewal_date) if q.last_renewal_date else '',
-            'expiry_date' : str(q.expiry_date) if q.expiry_date else ''
+            'expiry_date' : str(q.expiry_date) if q.expiry_date else '',
+            'issue_date' : str(q.issue_data) if q.issue_data else '',
+            'regulatory_body_address_one' : q.regulatory_body_address_one if q.regulatory_body_address_one else '',
+            'regulatory_body_address_two' : q.regulatory_body_address_two if q.regulatory_body_address_two else '',
+            'regulatory_body_address_country' : q.regulatory_body_address_country if q.regulatory_body_address_country else ''
+            
             
         } for q in certs)
         return records_json_envelop(list(certs))
@@ -383,20 +398,20 @@ def update_certification_by_emp(emp_id, c_id):
     cleaned_json = ((key, val.strip()) if isinstance(val, str) else (key, val) for key, val in request.json.items())
         #this means that it has extra set of keys that is not necessary
     #make the custom query
-    inner = ', '.join('{:s} = {!r}'.format(key, val) for key, val in cleaned_json)
-    query = '''UPDATE certifications SET {:s} WHERE id = {:d}'''.format(inner, c_id)
+    
     
 
     #try to executre
-    with engine.connect() as con:
-        try:
-            con.execute(query)
-        except IntegrityError as e:
-            return record_exists_envelop()
-        except Exception as e:
-            return fatal_error_envelop()
-        else:
-            return record_updated_envelop(request.json)
+  
+    try:
+        db_session.query(Certification).filter(Certification.id == c_id).update(dict(cleaned_json))
+        db_session.commit()
+    except IntegrityError as e:
+        return record_exists_envelop()
+    except Exception as e:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
 
 
 #######------------------__##########################

@@ -322,6 +322,9 @@ def delete_llg(id):
 def update_district(id):
     if not request.json:
         abort(400)
+    if 'name' in request.json:
+        request.json['display_name'] = request.json['name']
+        request.json['name'] = request.json['name'].lower().strip()
     
     #clearn up the json_request
     _cleaner = lambda s : s.strip() if isinstance(s, str) else s
@@ -330,6 +333,7 @@ def update_district(id):
     #remove the id field
     if 'id' in request.json:
         del request['id']
+    
 
     try:
         #for oracle

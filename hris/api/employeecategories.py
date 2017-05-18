@@ -333,9 +333,10 @@ def create_emp_position():
     
     #check to see if there is any blank 
 
-    if not all(len(val.strip()) > 1 for key, val in request.json.items() if isinstance(val, str)):
+    if not all(len(val.strip()) >= 1 for key, val in request.json.items() if isinstance(val, str)):
         return length_require_envelop()
     #inject 
+    
     request.json['emp_pos_title_display_name'] = request.json['emp_pos_title']
     request.json['emp_pos_title'] = request.json['emp_pos_title'].lower().strip()
     #initiate the dession
@@ -349,3 +350,33 @@ def create_emp_position():
         return fatal_error_envelop()
     else:
         return record_created_envelop(request.json)
+
+
+@api.route('/emppositions', methods=['GET'])
+def get_emp_positions():
+    try:
+        ps = db_session.query(EmployeePosition).all()
+    except ResultNotFound as e:
+        return record_notfound_envelop()
+    except Exception as e:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop([p.to_dict() for p in ps])
+
+@api.route('/emppositions/<int:p_id>', methods=['PUT'])
+def update_emp_positions(p_id):
+    #should do the error handling later
+    if not request.json:
+        abort(401)
+    if 'emp_pos_title' in request.json:
+        request.json['emp_pos_title_display_name'] = request.json['emp_pos_title']
+        request.json['emp_pos_title'] = request.json['emp_pos_title'].lower().strip()
+    try:
+        db_session.query(EmployeePosition).filter(EmployeePosition.id == p_id).update(request.json)
+        db_session.commit()
+    except IntegrityError as e:
+        return record_exists_envelop()
+    except Exception as e:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
