@@ -256,6 +256,7 @@ class LLG(Base):
         return {
             'id' : self.id,
             'name' : self.display_name if self.display_name else '',
+            'del_flag' : self.del_flag if self.del_flag else False,
             'llg_code' : self.llg_code if self.llg_code else '',
             'district' : self.district.display_name if self.district.display_name else '',
             'district_id' : self.district_id if self.district_id else '',
@@ -282,6 +283,7 @@ class District(Base):
         return {
             'id' : self.id,
             'name' : self.display_name if self.display_name else '',
+            'del_flag' : self.del_flag if self.del_flag else False,
             'district_code' : self.district_code if self.district_code else '',
             'province' : self.province.display_name if self.province.display_name else '',
             'province_id' : self.province_id if self.province_id else '',
@@ -309,6 +311,7 @@ class Province(Base):
         return {
             'id' : self.id,
             'province_code' : self.province_code if self.province_code else '',
+            'del_flag' : self.del_flag if self.del_flag else False,
             'name' : self.display_name if self.display_name else '',
             'region' : self.region.display_name if self.region.display_name else '',
             'region_id' : self.region_id if self.region_id else '',

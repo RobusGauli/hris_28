@@ -214,7 +214,7 @@ def get_facilities():
 def get_llg():
     
     try:
-        llgs = db_session.query(LLG).filter(LLG.del_flag==False).order_by(LLG.name).all()
+        llgs = db_session.query(LLG).order_by(LLG.name).all()
         gen_exp = (f.to_dict() for f in llgs)
         return records_json_envelop(list(gen_exp))
     except Exception as e:
@@ -226,7 +226,7 @@ def get_llg():
 def get_districts():
     
     try:
-        districts = db_session.query(District).filter(District.del_flag==False).order_by(District.name).all()
+        districts = db_session.query(District).order_by(District.name).all()
         gen_exp = (f.to_dict() for f in districts)
         return records_json_envelop(list(gen_exp))
     except Exception as e:
@@ -237,7 +237,7 @@ def get_districts():
 def get_provinces():
     
     try:
-        provinces = db_session.query(Province).filter(Province.del_flag==False).order_by(Province.name).all()
+        provinces = db_session.query(Province).order_by(Province.name).all()
         gen_exp = (p.to_dict() for p in provinces)
         return records_json_envelop(list(gen_exp))
     except Exception as e:
@@ -250,8 +250,8 @@ def get_provinces():
 def get_regions():
     
     try:
-        provinces = db_session.query(Region).filter(Region.del_flag=='False').order_by(Region.name).all()
-        gen_exp = (dict(name = f.display_name, id=f.id, region_code=f.region_code if f.region_code else '') for f in provinces)
+        provinces = db_session.query(Region).order_by(Region.name).all()
+        gen_exp = (dict(name = f.display_name, id=f.id, region_code=f.region_code if f.region_code else '', del_flag=f.del_flag) for f in provinces)
         return records_json_envelop(list(gen_exp))
     except Exception as e:
         return fatal_error_envelop()
@@ -296,9 +296,13 @@ def update_llg(id):
     _cleaner = lambda s : s.strip() if isinstance(s, str) else s
     _request = {key: _cleaner(val) for key, val in request.json.items()}
 
+    if 'name' in _request:
+        _request['display_name'] = _request['name']
+        _request['name'] = _request['name'].lower().strip()
+        
     #remove the id field
-    if 'id' in request.json:
-        del request['id']
+    if 'id' in _request:
+        del _request['id']
 
     try:
         #for oracle
@@ -391,6 +395,10 @@ def update_province(id):
     _cleaner = lambda s : s.strip() if isinstance(s, str) else s
     _request = {key: _cleaner(val) for key, val in request.json.items()}
 
+    if 'name' in _request:
+        _request['display_name'] = _request['name']
+        _request['name'] = _request['name'].lower().strip()
+
     #remove the id field
     if 'id' in request.json:
         del request['id']
@@ -438,6 +446,9 @@ def update_region(id):
     #clearn up the json_request
     _cleaner = lambda s : s.strip() if isinstance(s, str) else s
     _request = {key: _cleaner(val) for key, val in request.json.items()}
+    if 'name' in _request:
+        _request['display_name']  = _request['name']
+        _request['name'] = _request['name'].lower().strip()
 
     #remove the id field
     if 'id' in request.json:
