@@ -203,3 +203,10 @@ def unauthorized_envelop(code=401):
             'status' : 'fail'
         }
     )
+
+def record_deleted_envelop(code=200):
+    return jsonify({
+        'message': 'Deleted Successfully',
+        'code' : 200,
+        'status' : 'success'
+    })

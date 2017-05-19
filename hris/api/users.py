@@ -241,7 +241,6 @@ def get_password_policy():
 
 
 @api.route('/company', methods=['GET'])
-@read_permission('read_management_perm')
 def get_company_detail():
     try:
         company = db_session.query(CompanyDetail).filter(CompanyDetail.id == 1).one()

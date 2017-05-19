@@ -29,7 +29,8 @@ from hris.api.response_envelop import (
     record_not_updated_env,
     fatal_error_envelop,
     missing_keys_envelop, 
-    length_require_envelop
+    length_require_envelop,
+    record_deleted_envelop
 )
 from hris.api.auth import (
     allow_permission, 
@@ -62,6 +63,22 @@ def create_facility():
     
     else:
         return record_created_envelop(request.json)
+
+
+@api.route('/facilities/<int:f_id>', methods=['DELETE'])
+@create_update_permission('company_management_perm')
+def delete_facility(f_id):
+    if not request.json:
+        abort(401)
+    
+    try:
+        db_session.query(FacilityType).filter(FacilityType.id == f_id).update({'del_flag' : True})
+        db_session.commit()
+    except NoResultFound as e:
+        return record_notfound_envelop()
+    else:
+        return record_deleted_envelop()
+
 
 
 
@@ -187,7 +204,7 @@ def get_facilities():
     
     try:
         facilities = db_session.query(FacilityType).order_by(FacilityType.name).all()
-        gen_exp = (dict(name = f.display_name, id=f.id) for f in facilities)
+        gen_exp = (dict(name = f.display_name, id=f.id, del_flag=f.del_flag) for f in facilities)
         return records_json_envelop(list(gen_exp))
     except Exception as e:
         return fatal_error_envelop()
@@ -247,18 +264,16 @@ def update_facility(id):
     if not request.json:
         abort(400)
     
-    if 'name' not in request.json.keys():
-        abort(401)
+    
     
     #now try to update the facilty name
-    name = request.json['name'].replace(' ',  '').lower().strip()
-    display_name = request.json['name'].strip()
+    if 'name' in request.json:
+        request.json['display_name'] = request.json['name']
+        request.json['name'] = request.json['name'].lower().strip()
 
     try:
-        facility = db_session.query(FacilityType).filter(FacilityType.id==id).one()
-        facility.name = name
-        facility.display_name = display_name
-        db_session.add(facility)
+        facility = db_session.query(FacilityType).filter(FacilityType.id==id).update(request.json)
+        
         db_session.commit()
     except NoResultFound as e:
         abort(404)

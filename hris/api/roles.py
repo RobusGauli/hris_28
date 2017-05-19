@@ -97,19 +97,20 @@ def update_role(r_id):
 
     query = update_query(Role.__tablename__, cleaned_json, r_id)
 
-    with engine.connect() as con:
-        try:
-            con.execute(query)
-        except IntegrityError as e:
-            return record_exists_envelop() 
-        except Exception as e:
-            return fatal_error_envelop()
-        else:
-            roles = db_session.query(Role).all()
-            roles = [role.to_dict() for role in roles]
-            for role in roles:
-                current_app.config[role['id']]= role
-            return record_updated_envelop(request.json)
+    
+    try:
+        db_session.query(Role).filter(Role.id==r_id).update(dict(cleaned_json))
+        db_session.commit()
+    except IntegrityError as e:
+        return record_exists_envelop() 
+    except Exception as e:
+        return fatal_error_envelop()
+    else:
+        roles = db_session.query(Role).all()
+        roles = [role.to_dict() for role in roles]
+        for role in roles:
+            current_app.config[role['id']]= role
+        return record_updated_envelop(request.json)
 
 
 
