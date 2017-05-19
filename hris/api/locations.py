@@ -299,7 +299,7 @@ def update_llg(id):
     if 'name' in _request:
         _request['display_name'] = _request['name']
         _request['name'] = _request['name'].lower().strip()
-        
+
     #remove the id field
     if 'id' in _request:
         del _request['id']
@@ -311,7 +311,7 @@ def update_llg(id):
         _bool_mapper = lambda s : s
         _json = {key : _bool_mapper(val) if val in ('true', 'false') else val for key, val in _request.items()}
     
-        db_session.query(District).filter(District.id == id).update(_json)
+        db_session.query(LLG).filter(LLG.id == id).update(_json)
        
         db_session.commit()
     except NoResultFound as e:
