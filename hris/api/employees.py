@@ -173,7 +173,8 @@ def get_employees():
                   'id' : emp.id if emp.id else '',
                   'user_id' : emp.user_id if emp.user_id else '',
                   'employee_branch_id' : emp.employee_branch_id if emp.employee_branch_id else '',
-                  'role_id' : emp.user.role_id if emp.user else ''
+                  'role_id' : emp.user.role_id if emp.user else '',
+                  'salutation' : emp.salutation if emp.salutation else ''
                                     
 
         } for emp in employees)
