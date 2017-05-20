@@ -203,8 +203,8 @@ def handle_update_division_keys(model,  exclude=None):
             
             #now check if there are empty fields
 
-            if not all(len(str(val).strip()) >=1 for val in request.json.values()):
-                return length_require_envelop()
+            #if not all(len(str(val).strip()) >=1 for val in request.json.values()):
+             #   return length_require_envelop()
 
             #if everythin is fine then return the function
             return func(*args, **kwargs)
