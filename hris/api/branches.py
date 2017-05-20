@@ -259,7 +259,7 @@ def update_division(d_id):
 @read_permission('read_management_perm')
 def get_branches():
     try:
-        branches = db_session.query(Branch).filter(Branch.is_branch==True).filter(Branch.del_flag==False).filter(Branch.acitivate==True).order_by(Branch.facility_name).all()
+        branches = db_session.query(Branch).order_by(Branch.facility_name).all()
         all_branches = (dict(id=branch.id,
                              facility_name=branch.facility_display_name,
                              llg=branch.llg.display_name,
@@ -280,7 +280,7 @@ def get_branches():
 @read_permission('read_management_perm')
 def get_agencies():
     try:
-        branches = db_session.query(Branch).filter(Branch.is_branch==False).filter(Branch.del_flag==False).filter(Branch.acitivate==True).order_by(Branch.facility_name).all()
+        branches = db_session.query(Branch).order_by(Branch.facility_name).all()
         all_branches = (dict(id=branch.id,
                              facility_name=branch.facility_display_name,
                              llg=branch.llg.display_name,
