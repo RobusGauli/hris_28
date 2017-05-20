@@ -113,14 +113,7 @@ def create_branch():
     if not request.json:
         abort(400)
     
-    if not set(request.json.keys()) == {
-                                        'facility_name',
-                                        'facility_type_id',
-                                        'llg_id', 
-                                        'district_id', 
-                                        'province_id', 
-                                        'region_id'}:
-        abort(401)
+    
     #try to store the branch
 
     #make sure all the fields are non-empty
