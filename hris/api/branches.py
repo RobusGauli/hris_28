@@ -260,9 +260,19 @@ def get_branches():
                              province=branch.province.display_name,
                              region=branch.region.display_name,
                              facility_type=branch.facility_type.display_name,
-                             del_flag=branch.del_flag
+                             del_flag=branch.del_flag,
+                             branch_code=branch.branch_code,
+                             branch_code_desc=branch.branch_code_desc,
+                             address_one=branch.address_one,
+                             address_two=branch.address_two,
+                             web_address=branch.web_address,
+                             email=branch.email,
+                             contact_person_name=branch.contact_person_name,
+                             contact_person_email=branch.contact_person_email,
+                             contact_person_alt_email=branch.contact_person_alt_email
                              ) for branch in branches)
     except Exception as e:
+        raise
         return fatal_error_envelop()
     else:
         return records_json_envelop(list(all_branches))
@@ -281,7 +291,16 @@ def get_agencies():
                              province=branch.province.display_name,
                              region=branch.region.display_name,
                              facility_type=branch.facility_type.display_name,
-                             del_flag=branch.del_flag) for branch in branches)
+                             del_flag=branch.del_flag,
+                             branch_code=branch.branch_code,
+                             branch_code_desc=branch.branch_code_desc,
+                             address_one=branch.address_one,
+                             address_two=branch.address_two,
+                             web_address=branch.web_address,
+                             email=branch.email,
+                             contact_person_name=branch.contact_person_name,
+                             contact_person_email=branch.contact_person_email,
+                             contact_person_alt_email=branch.contact_person_alt_email) for branch in branches)
     except Exception as e:
         return fatal_error_envelop()
     else:
