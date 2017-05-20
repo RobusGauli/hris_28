@@ -67,7 +67,7 @@ class User(Base):
             
             'role_id' : self.role_id if self.role_id else '',
             'employee_data' : self.employee.to_dict() if self.employee else {},
-
+            'del_flag' : self.del_flag if self.del_flag else '',
             'id' : self.id if self.id else '',
             'role_name' : self.role.role_type
         }
@@ -122,6 +122,7 @@ class Role(Base):
             'config_management_perm': self.config_management_perm if self.config_management_perm else 'N',
             'read_management_perm' : self.read_management_perm if self.read_management_perm else 'N',
             'user_management_perm' : self.user_management_perm if self.user_management_perm else 'O',
+            'del_flag' : self.del_flag if self.del_flag else ''
             
 
             
@@ -357,6 +358,7 @@ class EmployeeCategory(Base):
     display_name = Column(String(50), nullable=False, unique=True)
     activate = Column(Boolean, default=True)
     emp_cat_rank_id = Column(Integer, ForeignKey('emp_cat_ranks.id'))
+    del_flag = Column(Boolean, default=False)
 
     #realationship
     emp_cat_rank = relationship('EmployeeCategoryRank', back_populates='emp_categories')
@@ -374,6 +376,7 @@ class EmployeePosition(Base):
     emp_pos_title = Column(String(40), unique=True, nullable=False)
     emp_pos_title_display_name = Column(String(40), nullable=False)
     emp_pos_sequence = Column(Integer, nullable=False)
+    del_flag = Column(Boolean, default=False)
     #relationship
     employees = relationship('Employee', back_populates='employee_position', cascade='all, delete, delete-orphan')
 
@@ -393,6 +396,7 @@ class EmployeeType(Base):
     name = Column(String(100), nullable=False, unique=True)
     display_name = Column(String(100), nullable=False, unique=True)
     activate = Column(Boolean, default=True)
+    del_flag = Column(Boolean, default=False)
     #relationship
     employees = relationship('Employee', back_populates='employee_type', cascade='all, delete, delete-orphan')
 

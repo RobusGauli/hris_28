@@ -128,20 +128,17 @@ def update_employee(id):
     #clean up the data
     data = {key : val.strip() if isinstance(val, str) else val for key, val in request.json.items()}
 
-    #prepate the sql query
-    inner = ', '.join('{} = {!r}'.format(key, val) for key, val in data.items())
-    query = '''UPDATE employees SET {}, updated_at=Now() where id={}'''.format(inner, id)
-
-    #try to executre
-    with engine.connect() as con:
-        try:
-            con.execute(query)
-        except IntegrityError as e:
-            return record_exists_envelop()
-        except Exception as e:
-            return fatal_error_envelop()
-        else:
-            return record_updated_envelop(request.json)
+   
+    try:
+        db_session.query(Employee).filter(Employee.id == id).update(request.json)
+        db_session.commit()
+        
+    except IntegrityError as e:
+        return record_exists_envelop()
+    except Exception as e:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
 
 
 

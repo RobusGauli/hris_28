@@ -179,16 +179,9 @@ def update_agency(a_id):
     
     json_request = dict(copy.deepcopy(request.json))
    
-    facility_display_name = request.json.get('facility_name', None)
-    if facility_display_name is not None:
-        
-        facility_name = facility_display_name.strip().replace(' ',  '').lower()
-        json_request['facility_name'] = facility_name
-        json_request['facility_display_name'] = facility_display_name.strip()
-    
-    inner = ', '.join('{:s} = {!r}'.format(key, val) for key, val in json_request.items())
-    query = '''UPDATE branches SET {:s} where id = {:d}'''.format(inner, a_id)
-    print(query)
+    if 'facility_name' in json_request:
+        json_request['facility_display_name'] = json_request['facility_name']
+        json_request['facility_name'] = json_request['facility_name'].strip().lower()
     
     
     try:

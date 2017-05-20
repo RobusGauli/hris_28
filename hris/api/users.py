@@ -127,6 +127,9 @@ def register_user():
             user = db_session.query(User).filter(User.user_name==user_name).one()
             if not user:
                 return record_notfound_envelop('User doesn\'t exists')
+            #check to see if del_flag is true
+            if user.del_flag and user.del_flag == True:
+                return record_notfound_envelop('User not found' )
             #if there is user check for the password
             if hashed_pass == user.password:
                 return record_json_envelop({'access_token' : user.access_token, 'activate' : user.activate, 'role_id' : user.role_id, 'permissions' : user.role.to_dict(), 'password_changed' : user.password_changed})
@@ -271,6 +274,18 @@ def get_users():
 def update_user(u_id):
     if not request.json:
         abort(400)
+    
+    if request.args.get('action') == 'update_activation':
+        try:
+            db_session.query(User).filter(User.id==u_id).update(request.json)
+            db_session.commit()
+        except NoResultFound as e:
+            return result_notfound_envelop()
+        except Exception as e:
+            return fatal_error_envelop()
+        else:
+            return record_updated_envelop(request.json)
+
     if not request.args.get('action') == 'update_role':
 
     

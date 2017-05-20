@@ -84,7 +84,7 @@ def get_emp_cat_ranks():
     try:
         ranks = db_session.query(EmployeeCategoryRank).order_by(EmployeeCategoryRank.name).all()
         ranks = (dict(id=rank.id,
-                      name = rank.display_name) for rank in ranks)
+                      name = rank.display_name, del_flag=rank.del_flag) for rank in ranks)
     except NoResultFound as e:
         return record_notfound_envelop()
     except Exception as e:
@@ -98,18 +98,16 @@ def update_rank(id):
     if not request.json:
         abort(400)
     
-    if 'name' not in request.json.keys():
-        abort(401)
+    if 'name' in request.json:
+        request.json['display_name'] = request.json['name']
+        request.json['name'] = request.json['name'].lower().strip()
     
     #now try to update the facilty name
-    name = request.json['name'].replace(' ', '').lower().strip()
-    display_name = request.json['name'].strip()
+    
 
     try:
-        rank = db_session.query(EmployeeCategoryRank).filter(EmployeeCategoryRank.id==id).one()
-        rank.name = name
-        rank.display_name = display_name
-        db_session.add(rank)
+        db_session.query(EmployeeCategoryRank).filter(EmployeeCategoryRank.id==id).update(request.json)
+        
         db_session.commit()
     except NoResultFound as e:
         abort(404)
@@ -137,9 +135,12 @@ def create_emp_cat(rank_id):
     #strip down the values
     display_name = request.json['name'].strip()
     name = display_name.lower().replace(' ', '')
-    emp_cat_rank_id = rank_id
+    emp_cat_rank_id = None
+    if not emp_cat_rank_id == 0:
+        emp_cat_rank_id = rank_id
 
-    #try to put onto database
+    
+    #try to put onto databas
     try:
         cat = EmployeeCategory(name=name, display_name=display_name, emp_cat_rank_id=emp_cat_rank_id)
         db_session.add(cat)
@@ -158,8 +159,10 @@ def get_emp_categories():
 
     try:
         ranks = db_session.query(EmployeeCategory).order_by(EmployeeCategory.name).all()
-        rks = (dict(id=rank.id, name=rank.display_name, emp_cat_rank=rank.emp_cat_rank.display_name, emp_cat_rank_id=rank.emp_cat_rank.id)
-                                                                          for rank in ranks)
+        rks = (dict(id=rank.id, name=rank.display_name,
+         emp_cat_rank=rank.emp_cat_rank.display_name,
+         emp_cat_rank_id=rank.emp_cat_rank.id,
+         del_flag=rank.del_flag) for rank in ranks)
     except NoResultFound as e:
         return record_notfound_envelop()
     except Exception as e:
@@ -173,23 +176,16 @@ def get_emp_categories():
 def update_emp_category(id):
     if not request.json:
         abort(400)
+    if not all(len(val.strip())>=1 for key, val in request.json.items() if isinstance(val, str)):
+        abort(411)
     
-    name = request.json.get('name', None)
-    emp_cat_rank_id  = request.json.get('emp_cat_rank_id', None)
-    
-    #now try to update the facilty name
-    if name is not None:
-        name = request.json['name'].lower().replace(' ', '').strip()
-        display_name = request.json['name'].strip()
-    
+    if 'name' in request.json:
+        request.json['display_name'] = request.json['name']
+        request.json['name'] = request.json['name'].strip().lower()
+
     try:
-        cat = db_session.query(EmployeeCategory).filter(EmployeeCategory.id==id).one()
-        if name is not None:
-            cat.name = name
-            cat.display_name = display_name
-        if emp_cat_rank_id is not None:
-            cat.emp_cat_rank_id = emp_cat_rank_id    
-        db_session.add(cat)
+        db_session.query(EmployeeCategory).filter(EmployeeCategory.id==id).update(request.json)
+        
         db_session.commit()
     except NoResultFound as e:
         abort(404)
@@ -238,7 +234,7 @@ def get_employee_types():
 
     try:
         types = db_session.query(EmployeeType).all()
-        tys = (dict(id=ty.id, name=ty.display_name) for ty in types)
+        tys = (dict(id=ty.id, name=ty.display_name, del_flag=ty.del_flag) for ty in types)
     except NoResultFound as e:
         return record_notfound_envelop()
     except Exception as e:
@@ -254,21 +250,15 @@ def update_emp_type(id):
     if not request.json:
         abort(400)
     
-    name = request.json.get('name', None)
-    
-    
+    if not all(len(val.strip())>=1 for key, val in request.json.items() if isinstance(val, str)):
+        abort(411)
     #now try to update the facilty name
-    if name is not None:
-        name = request.json['name'].lower().strip().replace(' ', '')
-        display_name = request.json['name'].strip()
-    
+    if 'name' in request.json:
+        request.json['display_name'] = request.json['name'] 
+        request.json['name'] = request.json['name'].strip().lower()   
     try:
-        typ = db_session.query(EmployeeType).filter(EmployeeType.id==id).one()
-        if name is not None:
-            typ.name = name
-            typ.display_name = display_name
-          
-        db_session.add(typ)
+        db_session.query(EmployeeType).filter(EmployeeType.id==id).update(request.json)
+      
         db_session.commit()
     except NoResultFound as e:
         abort(404)
@@ -329,7 +319,7 @@ def create_emp_position():
     _required = required_fields - set(request.json)
 
     if _required:
-        return missing_keys_envelop('Required Keys : %s' % ', '.join(key for key in _required))
+       return missing_keys_envelop('Required Keys : %s' % ', '.join(key for key in _required))
     
     #check to see if there is any blank 
 
@@ -368,6 +358,10 @@ def update_emp_positions(p_id):
     #should do the error handling later
     if not request.json:
         abort(401)
+    
+    if not all(len(val.strip())>=1 for key, val in request.json.items() if isinstance(val, str)):
+        abort(411)
+        
     if 'emp_pos_title' in request.json:
         request.json['emp_pos_title_display_name'] = request.json['emp_pos_title']
         request.json['emp_pos_title'] = request.json['emp_pos_title'].lower().strip()
