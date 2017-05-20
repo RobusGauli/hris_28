@@ -223,7 +223,7 @@ def get_employee(id):
                   'employee_type' : emp.employee_type.display_name if emp.employee_type.display_name else '',
                   'employee_category' : emp.employee_category.name if emp.employee_category.name else '',
                   'employee_position' : emp.employee_position.emp_pos_title_display_name if emp.employee_position.emp_pos_title_display_name else '',
-                  'is_branch' : emp.is_branch if emp.is_branch else ''
+                  'is_branch' : emp.is_branch
                                     
 
         })
