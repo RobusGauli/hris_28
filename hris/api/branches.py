@@ -65,13 +65,10 @@ def create_agency():
     if not request.json:
         abort(400)
     
-    if not set(request.json.keys()) == {
-                                        'facility_name',
-                                        'facility_type_id',
-                                        'llg_id', 
+    if {'facility_name', 'facility_type_id','llg_id', 
                                         'district_id', 
                                         'province_id', 
-                                        'region_id'}:
+                                        'region_id'} - set(request.json.keys()):
         abort(401)
     #try to store the branch
 
@@ -270,6 +267,7 @@ def get_branches():
                              province=branch.province.display_name,
                              region=branch.region.display_name,
                              facility_type=branch.facility_type.display_name,
+                             del_flag=branch.del_flag
                              ) for branch in branches)
     except Exception as e:
         return fatal_error_envelop()
@@ -289,7 +287,8 @@ def get_agencies():
                              district=branch.district.display_name,
                              province=branch.province.display_name,
                              region=branch.region.display_name,
-                             facility_type=branch.facility_type.display_name) for branch in branches)
+                             facility_type=branch.facility_type.display_name,
+                             del_flag=branch.del_flag) for branch in branches)
     except Exception as e:
         return fatal_error_envelop()
     else:

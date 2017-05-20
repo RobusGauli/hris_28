@@ -207,6 +207,16 @@ class Branch(Base):
     facility_display_name = Column(String(40))
     acitivate = Column(Boolean, default=True)
     del_flag = Column(Boolean, default=False)
+
+    branch_code = Column(String(10), unique=True)
+    branch_code_desc = Column(String(700))
+    address_one = Column(String(40))
+    address_two = Column(String(40))
+    web_address = Column(String(100))
+    email = Column(String(100))
+    contact_person_name = Column(String(100))
+    contact_person_email = Column(String(100))
+    contact_person_alt_email = Column(String(100))
     #foreignt keys
     facility_type_id = Column(Integer, ForeignKey('facilitytypes.id'))
     llg_id = Column(Integer, ForeignKey('llg.id'))
@@ -385,7 +395,8 @@ class EmployeePosition(Base):
             'id' : self.id,
             'emp_pos_code' : self.emp_pos_code if self.emp_pos_code else '',
             'emp_pos_title' : self.emp_pos_title_display_name if self.emp_pos_title_display_name else '',
-            'emp_pos_sequence': self.emp_pos_sequence if self.emp_pos_sequence else ''
+            'emp_pos_sequence': self.emp_pos_sequence if self.emp_pos_sequence else '',
+            'del_flag' : self.del_flag if self.del_flag else ''
         }
 
 
