@@ -132,7 +132,7 @@ def update_employee(id):
     try:
         db_session.query(Employee).filter(Employee.id == id).update(request.json)
         db_session.commit()
-        
+
     except IntegrityError as e:
         return record_exists_envelop()
     except Exception as e:
@@ -548,13 +548,13 @@ def create_employee_extra(id):
 @api.route('/employees/<int:id>/empextras', methods=['GET'])
 def get_empextras_by_emp(id):
     try:
-        trs = db_session.query(EmployeeExtra).filter(EmployeeExtra.employee_id==id).all()
+        q = db_session.query(EmployeeExtra).filter(EmployeeExtra.employee_id==id).one()
     except NoResultFound as e:
         return record_notfound_envelop()
     except Exception as e:
         return fatal_error_envelop()
     else:
-        trs = ({
+        tr = {
             'id' : q.id,
             'ref_name' : q.ref_name if q.ref_name else '',
             'ref_address' : q.ref_address if q.ref_address else '',
@@ -565,12 +565,12 @@ def get_empextras_by_emp(id):
             'emp_wife_name' : q.emp_wife_name if q.emp_wife_name else '',
             'emp_num_of_children' : q.emp_num_of_children if q.emp_num_of_children else ''
                        
-        } for q in trs)
-        return records_json_envelop(list(trs))
+        }
+        return record_json_envelop(tr)
 
 
-@api.route('/employees/<int:emp_id>/empextras/<int:ex_id>', methods=['PUT'])
-def update_empextra_by_emp(emp_id, ex_id):
+@api.route('/employees/<int:emp_id>/empextras', methods=['PUT'])
+def update_empextra_by_emp(emp_id):
     if not request.json:
         abort(400)
     #check to see if there is any empty values
@@ -587,20 +587,32 @@ def update_empextra_by_emp(emp_id, ex_id):
     cleaned_json = ((key, val.strip()) if isinstance(val, str) else (key, val) for key, val in request.json.items())
         #this means that it has extra set of keys that is not necessary
     #make the custom query
-    inner = ', '.join('{:s} = {!r}'.format(key, val) for key, val in cleaned_json)
-    query = '''UPDATE employee_extra SET {:s} WHERE id = {:d}'''.format(inner, ex_id)
     
+    cleaned_json = dict(cleaned_json)
+    cleaned_json['employee_id'] = emp_id
 
     #try to executre
-    with engine.connect() as con:
-        try:
-            con.execute(query)
-        except IntegrityError as e:
-            return record_exists_envelop()
-        except Exception as e:
-            return fatal_error_envelop()
-        else:
-            return record_updated_envelop(request.json)
+    
+    try:
+        
+        nr = db_session.query(EmployeeExtra).filter(EmployeeExtra.employee_id==emp_id).update(dict(cleaned_json))
+        print(nr)
+        if nr == 0:
+            #that means there is no data for that employee so add the data
+            db_session.add(EmployeeExtra(**cleaned_json))
+            #db_session.commit()
+            
+        db_session.commit()
+    except NoResultFound as e:
+
+        return record_notfound_envelop()
+    except IntegrityError as e:
+        raise
+        return record_exists_envelop()
+    except Exception as e:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
 
 #listing of emplloyees by branches, agencies, by individual branch and individual agencies
 
