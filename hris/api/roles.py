@@ -95,7 +95,7 @@ def update_role(r_id):
     #clean up the json values
     cleaned_json = ((key, val.strip()) if isinstance(val, str) else (key, val) for key, val in request.json.items())
 
-    query = update_query(Role.__tablename__, cleaned_json, r_id)
+   
 
     
     try:
