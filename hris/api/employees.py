@@ -223,8 +223,11 @@ def get_employee(id):
                   'employee_type' : emp.employee_type.display_name if emp.employee_type.display_name else '',
                   'employee_category' : emp.employee_category.name if emp.employee_category.name else '',
                   'employee_position' : emp.employee_position.emp_pos_title_display_name if emp.employee_position.emp_pos_title_display_name else '',
-                  'is_branch' : emp.is_branch
-                                    
+                  'is_branch' : emp.is_branch,
+                  'employee_type_id' : emp.employee_type_id if emp.employee_type_id else '',
+                  'employee_position_id' : emp.employee_position_id if emp.employee_position_id else '',
+                  'employee_category_id' : emp.employee_category_id if emp.employee_category_id else '',
+                  'salutation' : emp.salutation if emp.salutation else ''
 
         })
 
