@@ -484,8 +484,13 @@ class Employee(Base):
     qualifications = relationship('Qualification', back_populates='employee', cascade='all, delete, delete-orphan')
     certifications = relationship('Certification', back_populates='employee', cascade='all, delete, delete-orphan')
     trainings = relationship('Training', back_populates='employee', cascade='all, delete, delete-orphan')
-
-
+    relatives = relationship('EmployeeRelative', back_populates='employee', cascade='all, delete, delete-orphan')
+    emp_histories =  relationship('EmployementHistory', back_populates='employee', cascade='all, delete, delete-orphan')
+    emp_referenceses = relationship('EmployeeReference', back_populates='employee', cascade='all, delete, delete-orphan')
+    emp_benifits = relationship('EmployeeBenifit', back_populates='employee', cascade='all, delete, delete-orphan')
+    emp_disciplinaries = relationship('EmployeeDisciplinary', back_populates='employee', cascade='all, delete, delete-orphan')
+    emp_appraisals = relationship('EmployeeAppraisal', back_populates='employee', cascade='all, delete, delete-orphan')
+    
     def to_dict(self):
         data = {
             'employement_number' : self.employement_number if self.employement_number else '',
@@ -517,6 +522,150 @@ class EmployeeExtra(Base):
 
     #relationship
     employee = relationship('Employee', back_populates='employee_extra')
+
+class EmployeeRelativeType(Base):
+    __tablename__ = 'emp_relative_types'
+    
+    id = Column(Integer, Sequence('emp_rel_id'), primary_key=True)
+    name = Column(String(100), nullable=False)
+    display_name = Column(String(100), nullable=False)
+    code = Column(String(30))
+    del_flag = Column(Boolean, default=False)
+
+    def to_dict(self):
+        return {
+            'name' : self.display_name if self.display_name else '',
+            'code' : self.code if self.code else '',
+            'del_flag' : self.del_flag
+        }
+
+class EmployeeRelative(Base):
+    __tablename__ = 'emp_relatives'
+
+    id = Column(Integer, Sequence('emp_rel'), primary_key=True)
+    first_name = Column(String(100), nullable=False)
+    middle_name = Column(String(100))
+    last_name = Column(String(100))
+    address_one = Column(String(100))
+    address_two = Column(String(100))
+    country = Column(String(100))
+    contact_number = Column(String(20))
+    email = Column(String(50))
+    del_flag = Column(Boolean, default=False)
+    approved = Column(Boolean, default=False)
+    employee_id = Column(Integer, ForeignKey('employees.id'))
+    employee_type = Column(String(100))
+    employee = relationship('Employee', back_populates='relatives')
+
+
+class EmployementHistory(Base):
+    __tablename__ = 'emp_histories'
+
+    id = Column(Integer, Sequence('emp_his_id'), primary_key=True)
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime, nullable=False)
+    position = Column(String(100))
+    reason_leaving = Column(String(100))
+    description = Column(String(600))
+    del_flag = Column(Boolean, default=False)
+    approved = Column(Boolean, default=False)
+    employee_id = Column(Integer, ForeignKey('employees.id'))
+    
+    employee = relationship('Employee', back_populates='emp_histories')
+
+
+class EmployeeReference(Base):
+    __tablename__ = 'emp_references'
+
+    id = Column(Integer, Sequence('emp_ref_id'), primary_key=True)
+    first_name = Column(String(100), nullable=False)
+    middle_name = Column(String(100))
+    last_name = Column(String(100))
+    company = Column(String(100))
+    email = Column(String(100))
+    address_one = Column(String(100))
+    address_two = Column(String(100))
+    contact_number = Column(String(20))
+    country = Column(String(100))
+    del_flag = Column(Boolean, default=False)
+    description = Column(String(600))
+
+    approved = Column(Boolean, default=False)
+    employee_id = Column(Integer, ForeignKey('employees.id'))
+    
+    employee = relationship('Employee', back_populates='emp_referenceses')
+
+
+
+class EmployeeBenifitType(Base):
+    __tablename__ = 'emp_benifit_types'
+    
+    id = Column(Integer, Sequence('emp_rel_id'), primary_key=True)
+    name = Column(String(100), nullable=False)
+    display_name = Column(String(100), nullable=False)
+    code = Column(String(30))
+    del_flag = Column(Boolean, default=False)
+
+class EmployeeBenifit(Base):
+    __tablename__ = 'emp_benifits'
+
+    id = Column(Integer, Sequence('emp_ben_id'), primary_key=True)
+    benifit_type = Column(String(100), nullable=False)
+    amount = Column(String(10))
+    date = Column(DateTime)
+    comment = Column(String(800))
+    approved = Column(Boolean, default=False)
+    employee_id = Column(Integer, ForeignKey('employees.id'))
+    del_flag = Column(Boolean, default=False) 
+    employee = relationship('Employee', back_populates='emp_benifits')
+
+
+class EmployeeDisciplinaryType(Base):
+    __tablename__ = 'emp_disciplinary_types'
+    
+    id = Column(Integer, Sequence('emp_distype_id'), primary_key=True)
+    name = Column(String(100), nullable=False)
+    display_name = Column(String(100), nullable=False)
+    code = Column(String(30))
+    del_flag = Column(Boolean, default=False)
+
+class EmployeeDisciplinary(Base):
+    __tablename__ = 'emp_disciplinary'
+    
+    id = Column(Integer, Sequence('emp_dis_id'), primary_key=True)
+    disciplinary_type = Column(String(100), nullable=False)
+    date = Column(DateTime)
+    department = Column(String(100))
+    warning = Column(String(100))
+    comment = Column(String(100))
+    approved = Column(Boolean, default=False)
+    del_flag = Column(Boolean, default=False)
+    employee_id = Column(Integer, ForeignKey('employees.id'))
+    employee = relationship('Employee', back_populates='emp_disciplinaries')
+
+class EmployeeAppraisalType(Base):
+    __tablename__ = 'emp_appraisal_types'
+    
+    id = Column(Integer, Sequence('emp_appraisaltype_id'), primary_key=True)
+    name = Column(String(100), nullable=False)
+    display_name = Column(String(100), nullable=False)
+    code = Column(String(30))
+    del_flag = Column(Boolean, default=False)
+
+class EmployeeAppraisal(Base):
+    __tablename__ = 'emp_appraisals'
+    
+    id = Column(Integer, Sequence('emp_appraisal_id'), primary_key=True)
+    appraisal_type = Column(String(100), nullable=False)
+    date = Column(DateTime)
+    department = Column(String(100))
+    comment = Column(String(100))
+    approved = Column(Boolean, default=False)
+    del_flag = Column(Boolean, default=False)
+    employee_id = Column(Integer, ForeignKey('employees.id'))
+    employee = relationship('Employee', back_populates='emp_appraisals')
+    
+
 
 class Qualification(Base):
     __tablename__ = 'qualifications'

@@ -8,7 +8,8 @@ from hris.api import (
     branches, 
     employeecategories, 
     employees,
-    roles
+    roles,
+    empdetails
 )
 
 
