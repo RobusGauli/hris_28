@@ -100,7 +100,7 @@ def get_emp_relativetypes():
 
 @api.route('/empreltypes/<int:id>', methods=['PUT'])
 @create_update_permission('agency_emp_perm')
-def update_emp_relativetype():
+def update_emp_relativetype(id):
     if not request.json:
         abort(400)
     #check to see if there is any empty values
