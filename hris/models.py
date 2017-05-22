@@ -637,6 +637,14 @@ class EmployeeDisciplinaryType(Base):
     display_name = Column(String(100), nullable=False)
     code = Column(String(30))
     del_flag = Column(Boolean, default=False)
+    
+    def to_dict(self):
+        return {
+            'id' : self.id,
+            'name' : self.display_name if self.display_name else '',
+            'code' : self.code if self.code else '',
+            'del_flag' : self.del_flag
+        }
 
 class EmployeeDisciplinary(Base):
     __tablename__ = 'emp_disciplinary'
