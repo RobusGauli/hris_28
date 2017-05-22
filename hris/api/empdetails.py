@@ -268,71 +268,71 @@ def update_emp_distype(id):
     else:
         return record_updated_envelop(request.json)
 
-# @api.route('/empapptypes', methods=['POST'])
-# @create_update_permission('agency_emp_perm')
-# def create_emp_apptype():
+@api.route('/empapptypes', methods=['POST'])
+@create_update_permission('agency_emp_perm')
+def create_emp_apptype():
  
-#     #lower case the facility name
-#     if not request.json:
-#         abort(400)
-#     if 'name' not in request.json:
-#         return missing_keys_envelop()
-#     #check if ther is empty fields
-#     if not all(len(val.strip())>=1 for key, val in request.json.items()):
-#         return length_require_envelop()
+    #lower case the facility name
+    if not request.json:
+        abort(400)
+    if 'name' not in request.json:
+        return missing_keys_envelop()
+    #check if ther is empty fields
+    if not all(len(val.strip())>=1 for key, val in request.json.items()):
+        return length_require_envelop()
 
-#     request.json['display_name'] = request.json['name']
-#     request.json['name'] = request.json['name'].strip().lower()
-#     #insert into the database
-#     try:
-#         rel = EmployeeAppraisalType(**request.json)
-#         db_session.add(rel)
-#         db_session.commit()
-#     except IntegrityError as ie:
-#         return record_exists_envelop()
+    request.json['display_name'] = request.json['name']
+    request.json['name'] = request.json['name'].strip().lower()
+    #insert into the database
+    try:
+        rel = EmployeeAppraisalType(**request.json)
+        db_session.add(rel)
+        db_session.commit()
+    except IntegrityError as ie:
+        return record_exists_envelop()
     
-#     else:
-#         return record_created_envelop(request.json)
+    else:
+        return record_created_envelop(request.json)
 
-# @api.route('/empapptypes')
-# def get_emp_distypes():
-#     try:
-#         q = db_session.query(EmployeeDisciplinaryType).all()
-#     except NoResultFound as e:
-#         return record_notfound_envelop()
-#     except Exception as e:
-#         return fatal_error_envelop()
-#     else:
+@api.route('/empapptypes')
+def get_emp_apptypes():
+    try:
+        q = db_session.query(EmployeeAppraisalType).all()
+    except NoResultFound as e:
+        return record_notfound_envelop()
+    except Exception as e:
+        return fatal_error_envelop()
+    else:
         
-#         return records_json_envelop(list(row.to_dict() for row in q))
+        return records_json_envelop(list(row.to_dict() for row in q))
 
 
-# @api.route('/empdistypes/<int:id>', methods=['PUT'])
-# @create_update_permission('agency_emp_perm')
-# def update_emp_distype(id):
-#     if not request.json:
-#         abort(400)
-#     #check to see if there is any empty values
-#     if not all(len(str(val).strip()) >=1 for val in request.json.values() if isinstance(val, str)):
-#         abort(411)
-#     #check to see if the request has the right type of keys
+@api.route('/empapptypes/<int:id>', methods=['PUT'])
+@create_update_permission('agency_emp_perm')
+def update_emp_apptype(id):
+    if not request.json:
+        abort(400)
+    #check to see if there is any empty values
+    if not all(len(str(val).strip()) >=1 for val in request.json.values() if isinstance(val, str)):
+        abort(411)
+    #check to see if the request has the right type of keys
     
-#     #clearn up the values for string
-#     #generator expression
-#     cleaned_json = dict((key, val.strip()) if isinstance(val, str) else (key, val) for key, val in request.json.items())
-#     if 'name' in cleaned_json:
-#         cleaned_json['display_name'] = cleaned_json['name']
-#         cleaned_json['name'] = cleaned_json['name'].strip().lower()     
+    #clearn up the values for string
+    #generator expression
+    cleaned_json = dict((key, val.strip()) if isinstance(val, str) else (key, val) for key, val in request.json.items())
+    if 'name' in cleaned_json:
+        cleaned_json['display_name'] = cleaned_json['name']
+        cleaned_json['name'] = cleaned_json['name'].strip().lower()     
     
 
-#     #try to executre
+    #try to executre
   
-#     try:
-#         db_session.query(EmployeeDisciplinaryType).filter(EmployeeDisciplinaryType.id == id).update(cleaned_json)
-#         db_session.commit()
-#     except IntegrityError as e:
-#         return record_exists_envelop()
-#     except Exception as e:
-#         return fatal_error_envelop()
-#     else:
-#         return record_updated_envelop(request.json)
+    try:
+        db_session.query(EmployeeAppraisalType).filter(EmployeeAppraisalType.id == id).update(cleaned_json)
+        db_session.commit()
+    except IntegrityError as e:
+        return record_exists_envelop()
+    except Exception as e:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
