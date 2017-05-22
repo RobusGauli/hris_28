@@ -98,6 +98,35 @@ def get_emp_relativetypes():
         
         return records_json_envelop(list(row.to_dict() for row in q))
 
+@api.route('/empreltypes/<int:id>', methods=['PUT'])
+@create_update_permission('agency_emp_perm')
+def update_emp_relativetype():
+    if not request.json:
+        abort(400)
+    #check to see if there is any empty values
+    if not all(len(str(val).strip()) >=1 for val in request.json.values() if isinstance(val, str)):
+        abort(411)
+    #check to see if the request has the right type of keys
+    
+    #clearn up the values for string
+    #generator expression
+    cleaned_json = dict((key, val.strip()) if isinstance(val, str) else (key, val) for key, val in request.json.items())
+    if 'name' in cleaned_json:
+        cleaned_json['display_name'] = cleaned_json['name']
+        cleaned_json['name'] = cleaned_json['name'].strip().lower()     
+    
+
+    #try to executre
+  
+    try:
+        db_session.query(EmployeeRelativeType).filter(EmployeeRelativeType.id == id).update(cleaned_json)
+        db_session.commit()
+    except IntegrityError as e:
+        return record_exists_envelop()
+    except Exception as e:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
 
 # @api.route('', methods=['POST'])
 # @create_update_permission('agency_emp_perm')
