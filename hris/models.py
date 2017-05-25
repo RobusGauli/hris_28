@@ -558,6 +558,9 @@ class EmployeeRelative(Base):
     employee_type = Column(String(100))
     employee = relationship('Employee', back_populates='relatives')
 
+    _val_mapper = lambda self, val : val if val is not None else ''
+    to_dict = lambda self : {key: self._val_mapper(val) for key, val in vars(self).items()\
+                             if not str(key).startswith('_')}
 
 class EmployementHistory(Base):
     __tablename__ = 'emp_histories'
@@ -573,6 +576,10 @@ class EmployementHistory(Base):
     employee_id = Column(Integer, ForeignKey('employees.id'))
     
     employee = relationship('Employee', back_populates='emp_histories')
+    
+    _val_mapper = lambda self, val : str(val) if val is not None else ''
+    to_dict = lambda self : {key : self._val_mapper(val) for key, val in vars(self).items()\
+                             if not str(key).startswith('_')}
 
 
 class EmployeeReference(Base):
@@ -596,6 +603,9 @@ class EmployeeReference(Base):
     
     employee = relationship('Employee', back_populates='emp_referenceses')
 
+    _val_mapper = lambda self, item : item if item is not None else ''
+    to_dict = lambda self : {key : self._val_mapper(val) for key, val
+                             in vars(self).items() if not str(key).startswith('_')}
 
 
 class EmployeeBenifitType(Base):
@@ -628,6 +638,9 @@ class EmployeeBenifit(Base):
     del_flag = Column(Boolean, default=False) 
     employee = relationship('Employee', back_populates='emp_benifits')
 
+    _val_mapper = lambda self, item : item if item is not None else ''
+    to_dict = lambda self : {key : self._val_mapper(val) for key, val in vars(self).items()
+                            if not str(key).startswith('_')}
 
 class EmployeeDisciplinaryType(Base):
     __tablename__ = 'emp_disciplinary_types'
@@ -660,6 +673,9 @@ class EmployeeDisciplinary(Base):
     employee_id = Column(Integer, ForeignKey('employees.id'))
     employee = relationship('Employee', back_populates='emp_disciplinaries')
 
+    _val_mapper = lambda self, item : item if item is not None else ''
+    to_dict = lambda self : {key : self._val_mapper(val) for key, val in vars(self).items()
+                            if not str(key).startswith('_')}
 class EmployeeAppraisalType(Base):
     __tablename__ = 'emp_appraisal_types'
     
@@ -690,7 +706,9 @@ class EmployeeAppraisal(Base):
     employee_id = Column(Integer, ForeignKey('employees.id'))
     employee = relationship('Employee', back_populates='emp_appraisals')
     
-
+    _val_mapper = lambda self, item : item if item is not None else ''
+    to_dict = lambda self : {key : self._val_mapper(val) for key, val in vars(self).items()
+                            if not str(key).startswith('_')}
 
 class Qualification(Base):
     __tablename__ = 'qualifications'

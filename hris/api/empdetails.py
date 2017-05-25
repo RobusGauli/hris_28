@@ -277,8 +277,7 @@ def create_emp_apptype():
         abort(400)
     if 'name' not in request.json:
         return missing_keys_envelop()
-    #check if ther is empty fields
-    if not all(len(val.strip())>=1 for key, val in request.json.items()):
+    if not all(len(val.strip()) >= 1 for key, val in request.json.items()):
         return length_require_envelop()
 
     request.json['display_name'] = request.json['name']
@@ -336,3 +335,321 @@ def update_emp_apptype(id):
         return fatal_error_envelop()
     else:
         return record_updated_envelop(request.json)
+
+
+@api.route('/employees/<int:id>/relatives', methods=['POST'])
+def create_relative_bye_emp(id):
+    if not request.json:
+        abort(400)
+    #check to see if there are any fields
+    if not all(len(val.strip()) >= 1 for val in request.json.values() if isinstance(val, str)):
+        abort(411)
+    request.json['employee_id'] = id
+    try:
+        db_session.add(EmployeeRelative(**request.json))
+        db_session.commit()
+    except IntegrityError as e:
+        return record_exists_envelop()
+    except Exception as e:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/employees/<int:id>/relatives/<int:rel_id>', methods=['PUT'])
+def update_relative_by_emp(id, rel_id):
+    if not request.json:
+        abort(400)
+    
+    if not all(len(val.strip())>=0 for val in request.json.values() if isinstance(val, str)):
+        abort(411)
+    
+    #request.json['id'] = rel_id
+    try:
+        db_session.query(EmployeeRelative).filter(EmployeeRelative.id == rel_id).update(request.json)
+        db_session.commit()
+    except IntegrityError as e:
+        return record_exists_envelop()
+    except Exception as e:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
+
+@api.route('/employees/<int:id>/relatives', methods=['GET'])
+def get_relatives_by_emp(id):
+
+    
+    #request.json['id'] = rel_id
+    try:
+        relatives = db_session.query(EmployeeRelative).filter(EmployeeRelative.employee_id == id).all()
+
+        
+    except NoResultFound as e:
+        return result_notfound_envelop()
+    except Exception as e:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(r.to_dict() for r in relatives))
+
+@api.route('/employees/<int:id>/histories', methods=['GET'])
+def get_emphistories_by_emp(id):
+    try:
+        histories = db_session.query(EmployementHistory).\
+                    filter(EmployementHistory.employee_id == id).all()
+    except NoResultFound as e:
+        return result_notfound_envelop()
+    except Exception as e:
+        raise
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(h.to_dict() for h in histories))
+
+@api.route('/employees/<int:id>/histories', methods=['POST'])
+def create_emphistory_by_emp(id):
+    if not request.json:
+        abort(400)
+    if not all(len(val.strip()) >= 1 for val in request.json.values() if isinstance(val, str)):
+        abort(411)
+    request.json['employee_id'] = id
+    try:
+        db_session.add(EmployementHistory(**request.json))
+        db_session.commit()
+    except IntegrityError as e:
+        return record_exists_envelop()
+    except Exception as e:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/employees/<int:id>/histories/<int:e_id>', methods=['PUT'])
+def update_emphistory_by_emp(id, e_id):
+    if not request.json:
+        abort(400)
+    if not all(len(val.strip()) >= 1 for val in request.json.values() if isinstance(val, str)):
+        abort(411)
+    try:
+        db_session.query(EmployementHistory).filter(EmployementHistory.id == e_id).\
+                                            update(request.json)
+        db_session.commit()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+    
+
+@api.route('/employees/<int:id>/empreferences', methods=['POST'])
+def create_emp_reference(id):
+    if not request.json:
+        abort(400)
+    #check to see if there are any empty fields
+    if not all(len(val.strip()) >= 1 for val in request.json.values()):
+        abort(411)
+    #now insert the shit down
+    request.json['employee_id'] = id
+    try:
+        db_session.add(EmployeeReference(**request.json))
+        db_session.commit()
+    except IntegrityError: 
+        return record_exists_envelop()
+    except Exception:
+        #raise
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/employees/<int:id>/empreferences', methods=['GET'])
+def get_emp_references(id):
+    try:
+        references = db_session.query(EmployeeReference)\
+                        .filter(EmployeeReference.employee_id == id).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        raise
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(r.to_dict() for r in references))
+
+@api.route('/employees/<int:e_id>/empreferences/<int:r_id>', methods=['PUT'])
+def update_emp_references(e_id, r_id):
+    if not request.json:
+        abort(400)
+    if not all(len(val.strip()) >= 1 for val in request.json.values() if isinstance(val, str)):
+        abort(411)
+    
+    try:
+        db_session.query(EmployeeReference).filter(EmployeeReference.id == r_id).\
+                                                            update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
+
+@api.route('/employees/<int:id>/empbenifits', methods=['POST'])
+def create_emp_benifit(id):
+    if not request.json:
+        abort(400)
+    #check to see if there are any empty fields
+    if not all(len(val.strip()) >= 1 for val in request.json.values()):
+        abort(411)
+    #now insert the shit down
+    request.json['employee_id'] = id
+    try:
+        db_session.add(EmployeeBenifit(**request.json))
+        db_session.commit()
+    except IntegrityError: 
+        return record_exists_envelop()
+    except Exception:
+        #raise
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/employees/<int:id>/empbenifits', methods=['GET'])
+def get_emp_benifits(id):
+    try:
+        bns = db_session.query(EmployeeBenifit)\
+                        .filter(EmployeeBenifit.employee_id == id).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        raise
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(r.to_dict() for r in bns))
+
+@api.route('/employees/<int:e_id>/empbenifits/<int:b_id>', methods=['PUT'])
+def update_emp_benifits(e_id, b_id):
+    if not request.json:
+        abort(400)
+    if not all(len(val.strip()) >= 1 for val in request.json.values() if isinstance(val, str)):
+        abort(411)
+    
+    try:
+        db_session.query(EmployeeBenifit).filter(EmployeeBenifit.id == b_id).\
+                                                            update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
+
+
+@api.route('/employees/<int:id>/empdisc', methods=['POST'])
+def create_emp_disciplinary(id):
+    if not request.json:
+        abort(400)
+    #check to see if there are any empty fields
+    if not all(len(val.strip()) >= 1 for val in request.json.values()):
+        abort(411)
+    #now insert the shit down
+    request.json['employee_id'] = id
+    try:
+        db_session.add(EmployeeDisciplinary(**request.json))
+        db_session.commit()
+    except IntegrityError: 
+        return record_exists_envelop()
+    except Exception:
+        #raise
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/employees/<int:id>/empdisc', methods=['GET'])
+def get_emp_disc(id):
+    try:
+        bns = db_session.query(EmployeeDisciplinary)\
+                        .filter(EmployeeDisciplinary.employee_id == id).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        raise
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(r.to_dict() for r in bns))
+
+
+
+@api.route('/employees/<int:e_id>/empdisc/<int:b_id>', methods=['PUT'])
+def update_emp_disc(e_id, b_id):
+    if not request.json:
+        abort(400)
+    if not all(len(val.strip()) >= 1 for val in request.json.values() if isinstance(val, str)):
+        abort(411)
+    
+    try:
+        db_session.query(EmployeeDisciplinary).filter(EmployeeDisciplinary.id == b_id).\
+                                                            update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
+
+@api.route('/employees/<int:id>/empappraisal', methods=['POST'])
+def create_emp_appraisal(id):
+    if not request.json:
+        abort(400)
+    #check to see if there are any empty fields
+    if not all(len(val.strip()) >= 1 for val in request.json.values()):
+        abort(411)
+    #now insert the shit down
+    request.json['employee_id'] = id
+    try:
+        db_session.add(EmployeeAppraisal(**request.json))
+        db_session.commit()
+    except IntegrityError: 
+        return record_exists_envelop()
+    except Exception:
+        #raise
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/employees/<int:id>/empappraisal', methods=['GET'])
+def get_emp_appraisal(id):
+    try:
+        bns = db_session.query(EmployeeAppraisal)\
+                        .filter(EmployeeAppraisal.employee_id == id).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        raise
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(r.to_dict() for r in bns))
+
+
+
+@api.route('/employees/<int:e_id>/empappraisal/<int:b_id>', methods=['PUT'])
+def update_emp_appraisal(e_id, b_id):
+    if not request.json:
+        abort(400)
+    if not all(len(val.strip()) >= 1 for val in request.json.values() if isinstance(val, str)):
+        abort(411)
+    
+    try:
+        db_session.query(EmployeeAppraisal).filter(EmployeeAppraisal.id == b_id).\
+                                                            update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
