@@ -40,9 +40,9 @@ from hris.api.auth import (
 
 
 
-@api.route('/facilities', methods=['POST'])
+@api.route('/facilitytypes', methods=['POST'])
 @create_update_permission('company_management_perm')
-def create_facility():
+def create_facility_type():
     if not set(request.json.keys()) == {'name'}:
         return jsonify({'message' : 'missing keys'})
     
@@ -65,9 +65,9 @@ def create_facility():
         return record_created_envelop(request.json)
 
 
-@api.route('/facilities/<int:f_id>', methods=['DELETE'])
+@api.route('/facilitytypes/<int:f_id>', methods=['DELETE'])
 @create_update_permission('company_management_perm')
-def delete_facility(f_id):
+def delete_facility_type(f_id):
     if not request.json:
         abort(401)
     
@@ -114,6 +114,7 @@ def create_district():
 @api.route('/llg', methods=['POST'])
 @create_update_permission('company_management_perm')
 def create_llg():
+    print('This function was called')
     if not set(request.json.keys()) == {'name', 'llg_code', 'district_id'}:
         return jsonify({'message' : 'missing keys'})
     
@@ -172,20 +173,16 @@ def create_province():
 @api.route('/regions', methods=['POST'])
 @create_update_permission('company_management_perm')
 def create_region():
-    if not set(request.json.keys()) == {'name', 'region_code'}:
-        return jsonify({'message' : 'missing keys'})
+    if not request.json:
+        abort(400)
+    if not all(len(val.strip()) >= 1 for val in request.json.values() if isinstance(val, str)):
+        abort(404)
     
-    if not len(request.json['name']) > 3:
-        return jsonify({'message' : 'not adequate length'})
-    
-    #lower case the facility name
-    display_name = request.json['name'].strip()
-    name = request.json['name'].replace(' ', '').lower().strip()
-    region_code = request.json['region_code']
-
-    #insert into the database
+    if 'name' in request.json:
+        request.json['display_name'] = request.json['name'].strip()
+        request.json['name'] = request.json['name'].lower().strip()
     try:
-        dis = Region(name=name, display_name=display_name, region_code=region_code)
+        dis = Region(**request.json)
         db_session.add(dis)
         db_session.commit()
     except IntegrityError as ie:
@@ -198,15 +195,16 @@ def create_region():
 #...........................>#
 
 
-@api.route('/facilities', methods=['GET'])
+@api.route('/facilitytypes', methods=['GET'])
 @read_permission('read_management_perm')
-def get_facilities():
+def get_facilitytypes():
     
     try:
         facilities = db_session.query(FacilityType).order_by(FacilityType.name).all()
         gen_exp = (dict(name = f.display_name, id=f.id, del_flag=f.del_flag) for f in facilities)
         return records_json_envelop(list(gen_exp))
     except Exception as e:
+        raise
         return fatal_error_envelop()
 
 @api.route('/llg', methods=['GET'])
@@ -258,9 +256,9 @@ def get_regions():
 #..............................
     
 
-@api.route('/facilities/<int:id>', methods=['PUT'])
+@api.route('/facilitytypes/<int:id>', methods=['PUT'])
 @create_update_permission('company_management_perm')
-def update_facility(id):
+def update_facility_type(id):
     if not request.json:
         abort(400)
     

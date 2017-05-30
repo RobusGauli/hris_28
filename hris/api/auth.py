@@ -15,7 +15,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from hris.models import (
     User, 
     CompanyDetail,
-    Branch,
+    Facility,
     EmployeeCategoryRank,
     EmployeeCategory,
     EmployeeType,
@@ -198,8 +198,10 @@ def create_update_permission(key):
                     role = user.role
                     role = role.to_dict()[key]
                 except NoResultFound as e:
+                    raise
                     return record_notfound_envelop()
                 except Exception as e:
+                    raise
                     return fatal_error_envelop()
                 else:
                     if role == 'W' or role =='E':

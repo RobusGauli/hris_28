@@ -14,7 +14,7 @@ import itertools
 from hris.models import (
     User, 
     CompanyDetail,
-    Branch,
+    Facility,
     EmployeeCategoryRank,
     EmployeeCategory,
     EmployeeType,
@@ -654,4 +654,3 @@ def update_emp_appraisal(e_id, b_id):
         return record_updated_envelop(request.json)
 
 
-@api.route('/employees/<int:e_id>/empleave', methods=['POST'])

@@ -26,7 +26,7 @@ from hris.api.auth import (
 from hris.models import (
     User, 
     CompanyDetail,
-    Branch,
+    Facility,
     EmployeeCategoryRank,
     EmployeeCategory,
     EmployeeType,
@@ -59,135 +59,10 @@ from hris.api.response_envelop import (
 
 
 
-@api.route('/agencies', methods=['POST'])
-@create_update_permission('agency_management_perm')
-def create_agency():
-    if not request.json:
-        abort(400)
-    
-    if {'facility_name', 'facility_type_id','llg_id', 
-                                        'district_id', 
-                                        'province_id', 
-                                        'region_id'} - set(request.json.keys()):
-        abort(401)
-    #try to store the branch
-
-    #make sure all the fields are non-empty
-    if any(len(str(val).strip()) == 0 for val in request.json.values()):
-        abort(411)
-    
-    #clean up the json values
-    
-    facility_display_name = request.json['facility_name'].strip()
-    facility_type_id = request.json['facility_type_id']
-    llg_id = request.json['llg_id']
-    district_id = request.json['district_id']
-    province_id = request.json['province_id']
-    region_id = request.json['region_id']
-    facility_name = facility_display_name.replace(' ', '').lower().strip()
-    ##
-
-    try:
-        branch = Branch(
-                        facility_name=facility_name,
-                        facility_display_name = facility_display_name,
-                        is_branch = False, 
-                        llg_id=llg_id,
-                        district_id=district_id,
-                        province_id=province_id,
-                        region_id=region_id,
-                        facility_type_id=facility_type_id)
-        db_session.add(branch)
-        db_session.commit()
-    except IntegrityError as e:
-        return record_exists_envelop()
-    except Exception as e:
-        abort(500)
-    else:
-        return record_created_envelop(request.json)
-
-
-@api.route('/branches', methods=['POST'])
-@create_update_permission('division_management_perm')
-def create_branch():
-    if not request.json:
-        abort(400)
-    
-    
-    #try to store the branch
-
-    #make sure all the fields are non-empty
-    if any(len(str(val).strip()) == 0 for val in request.json.values()):
-        abort(411)
-    
-    #clean up the json values
-    facility_display_name = request.json['facility_name'].strip()
-    facility_name = facility_display_name.replace(' ', '').lower().strip()
-    facility_type_id = request.json['facility_type_id']
-    llg_id = request.json['llg_id']
-    district_id = request.json['district_id']
-    province_id = request.json['province_id']
-    region_id = request.json['region_id']
-    ##
-
-    try:
-        branch = Branch(is_branch=True,
-                        facility_name=facility_name,
-                        facility_display_name=facility_display_name, 
-                        llg_id=llg_id,
-                        district_id=district_id,
-                        province_id=province_id,
-                        region_id=region_id,
-                        facility_type_id=facility_type_id)
-        db_session.add(branch)
-        db_session.commit()
-    except IntegrityError as e:
-        return record_exists_envelop()
-    except Exception as e:
-        abort(500)
-    else:
-        return record_created_envelop(request.json)
-    
-
-
-
-@api.route('/agencies/<int:a_id>', methods=['PUT'])
-@create_update_permission('agency_management_perm')
-def update_agency(a_id):
-
-    #checck to see if there is json data
-    if not request.json:
-        abort(400)
-    db_fields  = set(col.name for col in Branch.__mapper__.columns) - {'id', 'is_branch'}
-    result = set(request.json.keys()) - db_fields
-    if result:
-        return extra_keys_envelop('Keys not accepted %r' % (', '.join(key for key in result)))
-    
-    #now check if there are any missing values whose length is less than 2
-    if not all(len(str(val).strip()) >=1 for val in request.json.values()):
-        return length_require_envelop()
-    
-    json_request = dict(copy.deepcopy(request.json))
-   
-    if 'facility_name' in json_request:
-        json_request['facility_display_name'] = json_request['facility_name']
-        json_request['facility_name'] = json_request['facility_name'].strip().lower()
-    
-    
-    try:
-        db_session.query(Branch).filter(Branch.id == a_id).update(json_request)
-        db_session.commit()
-    except IntegrityError as e:
-        return record_exists_envelop()
-    except Exception as e:
-        raise
-        return fatal_error_envelop()
-    else:
-        return record_updated_envelop(json_request)
 
     
 
-def handle_update_division_keys(model,  exclude=None):
+def handle_update_division_keys(model, exclude=None):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -212,100 +87,63 @@ def handle_update_division_keys(model,  exclude=None):
     return decorator
 
 
-@api.route('/branches/<int:d_id>', methods = ['PUT'])
+@api.route('/facilities', methods=['POST'])
 @create_update_permission('division_management_perm')
-@handle_update_division_keys(Branch, exclude={'id', 'is_branch'})
-def update_division(d_id):
-
-    json_request = dict(copy.deepcopy(request.json))
-   
-    facility_display_name = request.json.get('facility_name', None)
-    if facility_display_name is not None:
-        
-        facility_name = facility_display_name.strip().replace(' ',  '').lower()
-        json_request['facility_name'] = facility_name
-        json_request['facility_display_name'] = facility_display_name.strip()
+def create_facilities():
+    if not request.json:
+        abort(400)
+    #check to see if the incoming values are not null
+    if not all(len(val.strip()) >= 1 for val in request.json.values() if isinstance(val, str)):
+        return length_require_envelop()
     
-    inner = ', '.join('{:s} = {!r}'.format(key, val) for key, val in json_request.items())
-    query = '''UPDATE branches SET {:s} where id = {:d}'''.format(inner, d_id)
-    
+    if 'facility_name' not in request.json:
+        return keys_require_envelop(message="'facility_name' key is missing.")
     
     try:
-        db_session.query(Branch).filter(Branch.id == d_id).update(json_request)
+        db_session.add(Facility(**request.json))
         db_session.commit()
-    except IntegrityError as e:
+    except IntegrityError:
         return record_exists_envelop()
-    except Exception as e:
+    except Exception:
         raise
         return fatal_error_envelop()
     else:
-        return record_updated_envelop(json_request)
+        return record_created_envelop(request.json)
+
+
+@api.route('/facilities', methods=['GET'])
+@read_permission('read_management_perm')
+def get_facilities():
+    try:
+        facilities = db_session.query(Facility).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(f.to_dict() for f in facilities))
+
+@api.route('/facilities/<int:id>', methods=['PUT'])
+@create_update_permission('division_management_perm')
+def update_facility(id):
+    if not request.json:
+        abort(400)
+    if not all(len(val.strip()) >= 1 for val in request.json.values()):
+        return length_require_envelop()
+    if 'facility_name' in request.json:
+        request.json['facility_display_name'] = request.json['facility_name'].strip()
+        request.json['facility_name'] = request.json['facility_name'].lower().strip()
     
-
-   
-
-
-
-
-
-@api.route('/branches', methods=['GET'])
-@read_permission('read_management_perm')
-def get_branches():
     try:
-        branches = db_session.query(Branch).order_by(Branch.facility_name).all()
-        all_branches = (dict(id=branch.id,
-                             facility_name=branch.facility_display_name,
-                             llg=branch.llg.display_name,
-                             district=branch.district.display_name,
-                             province=branch.province.display_name,
-                             region=branch.region.display_name,
-                             facility_type=branch.facility_type.display_name,
-                             del_flag=branch.del_flag,
-                             branch_code=branch.branch_code,
-                             branch_code_desc=branch.branch_code_desc,
-                             address_one=branch.address_one,
-                             address_two=branch.address_two,
-                             web_address=branch.web_address,
-                             email=branch.email,
-                             contact_person_name=branch.contact_person_name,
-                             contact_person_email=branch.contact_person_email,
-                             contact_person_alt_email=branch.contact_person_alt_email
-                             ) for branch in branches)
-    except Exception as e:
+        db_session.query(Facility).filter(Facility.id == id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
         raise
         return fatal_error_envelop()
     else:
-        return records_json_envelop(list(all_branches))
-
-
-
-@api.route('/agencies', methods=['GET'])
-@read_permission('read_management_perm')
-def get_agencies():
-    try:
-        branches = db_session.query(Branch).order_by(Branch.facility_name).all()
-        all_branches = (dict(id=branch.id,
-                             facility_name=branch.facility_display_name,
-                             llg=branch.llg.display_name,
-                             district=branch.district.display_name,
-                             province=branch.province.display_name,
-                             region=branch.region.display_name,
-                             facility_type=branch.facility_type.display_name,
-                             del_flag=branch.del_flag,
-                             branch_code=branch.branch_code,
-                             branch_code_desc=branch.branch_code_desc,
-                             address_one=branch.address_one,
-                             address_two=branch.address_two,
-                             web_address=branch.web_address,
-                             email=branch.email,
-                             contact_person_name=branch.contact_person_name,
-                             contact_person_email=branch.contact_person_email,
-                             contact_person_alt_email=branch.contact_person_alt_email) for branch in branches)
-    except Exception as e:
-        return fatal_error_envelop()
-    else:
-        return records_json_envelop(list(all_branches))
-
+        return record_updated_envelop(request.json)
 
 
 @api.route('/branches/<int:b_id>/employees')

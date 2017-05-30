@@ -197,7 +197,14 @@ class CompanyDetail(Base):
 
 
 
+class Agency(Base):
+    __tablename__ = 'agencies'
 
+    id = Column(Integer, Sequence('agencies_id'), primary_key=True)
+    agency_code = Column(String(10), unique=True)
+    agency_name = Column(String(30), nullable=False, unique=True)
+    agency_display_name = Column(String(30), nullable=False)
+    
 class Facility(Base):
     __tablename__ = 'facilities'
 
@@ -234,6 +241,8 @@ class Facility(Base):
     #realiationhsip
     employees = relationship('Employee', back_populates='employee_facility', cascade='all, delete, delete-orphan')
 
+    _val_mapper = lambda self, item : item if item is not None else ''
+    to_dict = lambda self : {key : self._val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')}
 
 
 
@@ -447,7 +456,7 @@ class Employee(Base):
     date_of_commencement = Column(Date)
     contract_end_date = Column(Date)
     activate = Column(Boolean, default=True)
-    salutation = Column(String(4), default='Mr')
+    salutation = Column(String(4))
 
     #about del flag
     del_flag = Column(Boolean, default=False)

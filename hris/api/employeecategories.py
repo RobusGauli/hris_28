@@ -14,7 +14,7 @@ import itertools
 from hris.models import (
     User, 
     CompanyDetail,
-    Branch,
+    Facility,
     EmployeeCategoryRank,
     EmployeeCategory,
     EmployeeType,

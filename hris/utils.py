@@ -7,7 +7,7 @@ from flask import request, jsonify, abort
 from hris.models import (
     User, 
     CompanyDetail,
-    Branch,
+    Facility,
     EmployeeCategoryRank,
     EmployeeCategory,
     EmployeeType,
