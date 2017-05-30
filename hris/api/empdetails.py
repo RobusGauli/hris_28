@@ -653,3 +653,5 @@ def update_emp_appraisal(e_id, b_id):
     else:
         return record_updated_envelop(request.json)
 
+
+@api.route('/employees/<int:e_id>/empleave', methods=['POST'])
