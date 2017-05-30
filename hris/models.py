@@ -198,18 +198,18 @@ class CompanyDetail(Base):
 
 
 
-class Branch(Base):
-    __tablename__ = 'branches'
+class Facility(Base):
+    __tablename__ = 'facilities'
 
-    id = Column(Integer, Sequence('branches_id'), primary_key=True)
-    is_branch = Column(Boolean, default=False)
+    id = Column(Integer, Sequence('facilties_id'), primary_key=True)
+    under_ndoh = Column(Boolean, default=False)
     facility_name = Column(String(40), nullable=False, unique=True)
     facility_display_name = Column(String(40))
     acitivate = Column(Boolean, default=True)
     del_flag = Column(Boolean, default=False)
 
-    branch_code = Column(String(10), unique=True)
-    branch_code_desc = Column(String(700))
+    facility_code = Column(String(10), unique=True)
+    facility_code_desc = Column(String(700))
     address_one = Column(String(40))
     address_two = Column(String(40))
     web_address = Column(String(100))
@@ -225,14 +225,14 @@ class Branch(Base):
     region_id = Column(Integer, ForeignKey('regions.id'))
 
     #relationship
-    facility_type = relationship('FacilityType', back_populates='branches')
-    llg = relationship('LLG', back_populates='branches')
-    district = relationship('District', back_populates='branches')
-    province = relationship('Province', back_populates='branches')
-    region = relationship('Region', back_populates='branches')
+    facility_type = relationship('FacilityType', back_populates='facilities')
+    llg = relationship('LLG', back_populates='facilities')
+    district = relationship('District', back_populates='facilities')
+    province = relationship('Province', back_populates='facilities')
+    region = relationship('Region', back_populates='facilities')
 
     #realiationhsip
-    employees = relationship('Employee', back_populates='employee_branch', cascade='all, delete, delete-orphan')
+    employees = relationship('Employee', back_populates='employee_facility', cascade='all, delete, delete-orphan')
 
 
 
@@ -247,7 +247,7 @@ class FacilityType(Base):
     display_name = Column(String(200), nullable=False, unique=True)
     del_flag = Column(Boolean, default=False)
 
-    branches = relationship('Branch', back_populates='facility_type', cascade='all, delete, delete-orphan')
+    facilities = relationship('Facility', back_populates='facility_type', cascade='all, delete, delete-orphan')
 
 
 
@@ -259,7 +259,7 @@ class LLG(Base):
     llg_code = Column(String(3), unique=True, nullable=False)
     display_name = Column(String(200), unique=True, nullable=False)
     del_flag = Column(Boolean, default=False)
-    branches = relationship('Branch', back_populates='llg', cascade='all, delete, delete-orphan')
+    facilities = relationship('Facility', back_populates='llg', cascade='all, delete, delete-orphan')
     district_id = Column(Integer, ForeignKey('districts.id'))
     district = relationship('District', back_populates='llgs')
 
@@ -284,7 +284,7 @@ class District(Base):
     display_name = Column(String(200), unique=True, nullable=False)
     del_flag = Column(Boolean, default=False)
 
-    branches = relationship('Branch', back_populates='district', cascade='all, delete, delete-orphan')
+    facilities = relationship('Facility', back_populates='district', cascade='all, delete, delete-orphan')
     province_id = Column(Integer, ForeignKey('provinces.id'), nullable=False)
     province = relationship('Province', back_populates='districtss')
 
@@ -312,7 +312,7 @@ class Province(Base):
     province_code = Column(String(5), unique=True, nullable=False)
     display_name = Column(String(200), unique=True, nullable=False)
     del_flag = Column(Boolean, default=False)
-    branches = relationship('Branch', back_populates='province', cascade='all, delete, delete-orphan')
+    facilities = relationship('Facility', back_populates='province', cascade='all, delete, delete-orphan')
 
     region_id = Column(Integer, ForeignKey('regions.id'), nullable=False)
     region = relationship('Region', back_populates='provinceses')
@@ -340,7 +340,7 @@ class Region(Base):
     display_name = Column(String(200), unique=True, nullable=False)
     del_flag = Column(Boolean, default=False)
 
-    branches = relationship('Branch', back_populates='region', cascade='all, delete, delete-orphan')
+    facilities = relationship('Facility', back_populates='region', cascade='all, delete, delete-orphan')
     provinceses = relationship('Province', back_populates='region', cascade='all, delete, delete-orphan')
 
 
@@ -460,11 +460,11 @@ class Employee(Base):
     photo = Column(String(500), unique=True)
     document = Column(String(500), unique=True)
 
-    is_branch = Column(Boolean, nullable=False, default=True)
+    under_ndoh = Column(Boolean, nullable=False, default=True)
     #branch_id_of_employee
-    employee_branch_id = Column(Integer, ForeignKey('branches.id'), nullable=False)
+    employee_facility_id = Column(Integer, ForeignKey('facilities.id'), nullable=False)
     #relationship
-    employee_branch = relationship('Branch', back_populates='employees')
+    employee_facility = relationship('Facility', back_populates='employees')
 
     employee_type_id = Column(Integer, ForeignKey('emp_types.id'), nullable=False)
     employee_category_id = Column(Integer, ForeignKey('emp_categories.id'), nullable=False)
