@@ -35,7 +35,8 @@ from hris.models import (
     Qualification,
     Certification,
     Training,
-    AgencyType
+    AgencyType,
+    Agency
 )
 
 
@@ -161,7 +162,79 @@ def update_agencytype(id):
     else:
         return record_updated_envelop(request.json)
 
-        
+
+@api.route('/agencies', methods=['POST'])
+def create_agency():
+    if not request.json:
+        abort(400)
+    #check to see if there is empty fields
+    if not all(len(val.strip()) >= 1 for val in request.json.values()):
+        return length_require_envelop()
+    
+    if 'name' in request.json:
+        request.json['display_name'] = request.json['name'].strip()
+        request.json['name'] = request.json['name'].lower().strip()
+    
+    try:
+        db_session.add(Agency(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_envelop_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/agencies', methods=['GET'])
+def get_agencies():
+    try:
+        agencies = db_session.query(Agency).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        raise
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(a.to_dict() for a in agencies))
+
+
+@api.route('/agencies/<int:id>', methods=['PUT'])
+def update_agency(id):
+    if not request.json:
+        abort(400)
+    
+    if not all(len(val.strip()) >= 1 for val in request.json.values()):
+        return length_require_envelop()
+    
+    if 'name' in request.json:
+        request.json['display_name'] = request.json['name'].strip()
+        request.json['name'] = request.json['name'].lower().strip()
+    
+    if 'code' in request.json:
+        request.json['code'] = request.json['code'].strip()
+    
+    try:
+        db_session.query(Agency).filter(Agency.id == id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
+
+@api.route('/agencies/<int:id>', methods=['GET'])
+def get_agency(a_id):
+    try:
+        agency = db_session.query(Agency).filter(Agency.id == a_id).one()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_envelop_error()
+    else:
+        return record_json_envelop(agency.to_dict())
+
     
 @api.route('/facilities', methods=['POST'])
 @create_update_permission('division_management_perm')

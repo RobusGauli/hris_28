@@ -204,6 +204,8 @@ class AgencyType(Base):
     display_name = Column(String(50), nullable=False)
     code = Column(String(10), unique=True)
     del_flag = Column(Boolean, default=False)
+    #relationhsip
+    agencies = relationship('Agency', back_populates='agency_type', cascade='all, delete, delete-orphan')
     
     _val_mapper = lambda self, item : item if item is not None else ''
     to_dict = lambda self : {key : self._val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')}
@@ -218,21 +220,34 @@ class Agency(Base):
     display_name = Column(String(50), nullable=False)
     address_one = Column(String(50), nullable=False)
     address_two = Column(String(50), nullable=False)
-
-    
-    
-    district_id = Column(Integer, ForeignKey('districts.id'))
-    province_id = Column(Integer, ForeignKey('provinces.id'))
-    region_id = Column(Integer, ForeignKey('regions.id'))
-    
     contact_number = Column(String(15), nullable=False)
     fax_number = Column(String(15), nullable=False)
     email = Column(String(50))
     con_person_name = Column(String(50))
     con_per_mob_num = Column(String(50))
     con_per_email = Column((String(50)))
+    description = Column(String(600))
+    district_id = Column(Integer, ForeignKey('districts.id'))
+    province_id = Column(Integer, ForeignKey('provinces.id'))
+    region_id = Column(Integer, ForeignKey('regions.id'))
+    agency_type_id = Column(Integer, ForeignKey('agencytypes.id'))
     
-    
+    #relationship
+    district = relationship('District', back_populates='agencies')
+    province = relationship('Province', back_populates='agencies')
+    region = relationship('Region', back_populates='agencies')
+    agency_type = relationship('AgencyType', back_populates='agencies')
+
+    def to_dict(self):
+        val_mapper  = lambda item : item if item else ''
+        adict = {key : val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')}
+        adict['district'] = self.district.display_name if self.district else ''
+        adict['province'] = self.province.display_name if self.district else ''
+        adict['region'] = self.region.display_name if self.region else ''
+        adict['agency_type'] = self.agency_type.display_name if self.agency_type else ''
+        return adict
+
+
 class Facility(Base):
     __tablename__ = 'facilities'
 
@@ -327,6 +342,8 @@ class District(Base):
 
     llgs = relationship('LLG', back_populates='district', cascade='all, delete, delete-orphan')
 
+    agencies = relationship('Agency', back_populates='district', cascade='all, delete, delete-orphan')
+    
     def to_dict(self):
         return {
             'id' : self.id,
@@ -354,7 +371,8 @@ class Province(Base):
     region_id = Column(Integer, ForeignKey('regions.id'), nullable=False)
     region = relationship('Region', back_populates='provinceses')
     districtss = relationship('District', back_populates='province', cascade='all, delete, delete-orphan')
-
+    agencies = relationship('Agency', back_populates='province', cascade='all, delete, delete-orphan')
+    
     def to_dict(self):
         return {
             'id' : self.id,
@@ -379,6 +397,8 @@ class Region(Base):
 
     facilities = relationship('Facility', back_populates='region', cascade='all, delete, delete-orphan')
     provinceses = relationship('Province', back_populates='region', cascade='all, delete, delete-orphan')
+
+    agencies = relationship('Agency', back_populates='region', cascade='all, delete, delete-orphan')
 
 
 
