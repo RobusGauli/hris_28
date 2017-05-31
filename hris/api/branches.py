@@ -34,7 +34,8 @@ from hris.models import (
     EmployeeExtra,
     Qualification,
     Certification,
-    Training
+    Training,
+    AgencyType
 )
 
 
@@ -53,6 +54,8 @@ from hris.api.response_envelop import (
     extra_keys_envelop, 
     keys_require_envelop
 )
+
+
 
 
 
@@ -87,6 +90,77 @@ def handle_update_division_keys(model, exclude=None):
     return decorator
 
 
+
+@api.route('/agencytypes', methods=['POST'])
+@create_update_permission('division_management_perm')
+def create_agencytypes():
+    if not request.json:
+        abort(400)
+    #check for the empty fields
+    if not all(len(val.strip()) >= 1 for val in request.json.values()):
+        return length_require_envelop()
+    #now check if there is any extra keys
+    from_db =  set(request.json.keys()) - {'name', 'code', 'del_flag'} 
+    if from_db:
+        return extra_keys_envelop('Extra keys : %s' % ', '.join(from_db))
+    
+    required_keys = {'name',  'code'} - set(request.json.keys())
+    if required_keys:
+        return keys_require_envelop('Keys required : %s' % ', '.join(required_keys))
+    
+    #if everythin is fine
+    if 'name' in request.json:
+        request.json['display_name'] = request.json['name'].strip()
+        request.json['name'] = request.json['name'].lower().strip()
+    
+    if 'code' in request.json:
+        request.json['code'] = request.json['code'].strip()
+    
+    try:
+        db_session.add(AgencyType(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+    
+@api.route('/agencytypes', methods=['GET'])
+def get_agencytypes():
+    try:
+        ats = db_session.query(AgencyType).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    else:
+        return records_json_envelop(list(a.to_dict() for a in ats))
+
+@api.route('/agencytypes/<int:id>', methods=['PUT'])
+def update_agencytype(id):
+    if not request.json:
+        abort(400)
+    #check to see if ther eis empty field
+    if not all(len(val.strip()) >= 1 for val in request.json.values()):
+        return length_require_envelop()
+
+    if 'name' in request.json:
+        request.json['display_name'] = request.json['name'].strip()
+        request.json['name'] = request.json['name'].lower().strip()
+    
+    if 'code' in request.json:
+        request.json['code'] = request.json['code'].strip()
+    
+    try:
+        db_session.query(AgencyType).filter(AgencyType.id == id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+    
 @api.route('/facilities', methods=['POST'])
 @create_update_permission('division_management_perm')
 def create_facilities():
@@ -109,6 +183,9 @@ def create_facilities():
         return fatal_error_envelop()
     else:
         return record_created_envelop(request.json)
+
+
+
 
 
 @api.route('/facilities', methods=['GET'])

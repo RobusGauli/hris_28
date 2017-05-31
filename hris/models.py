@@ -196,6 +196,18 @@ class CompanyDetail(Base):
 
 
 
+class AgencyType(Base):
+    __tablename__ = 'agencytypes'
+
+    id = Column(Integer, Sequence('agencytypes_id'), primary_key=True)
+    name = Column(String(50), unique=True, nullable=False)
+    display_name = Column(String(50), nullable=False)
+    code = Column(String(10), unique=True)
+    del_flag = Column(Boolean, default=False)
+    
+    _val_mapper = lambda self, item : item if item is not None else ''
+    to_dict = lambda self : {key : self._val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')}
+
 
 class Agency(Base):
     __tablename__ = 'agencies'
