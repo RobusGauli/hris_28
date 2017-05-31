@@ -301,6 +301,9 @@ class FacilityType(Base):
 
     facilities = relationship('Facility', back_populates='facility_type', cascade='all, delete, delete-orphan')
 
+    _val_mapper = lambda self, item : item if item else ''
+    to_dict = lambda self : {key : self._val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')}
+
 
 
 class LLG(Base):

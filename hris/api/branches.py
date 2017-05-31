@@ -36,7 +36,8 @@ from hris.models import (
     Certification,
     Training,
     AgencyType,
-    Agency
+    Agency,
+    FacilityType
 )
 
 
@@ -80,7 +81,7 @@ def handle_update_division_keys(model, exclude=None):
             if result:
                 return extra_keys_envelop('Keys not accepted : {!r}'.format(',  '.join(key for key in result)))
             
-            #now check if there are empty fields
+            #now check if there are empty fieldsc
 
             #if not all(len(str(val).strip()) >=1 for val in request.json.values()):
              #   return length_require_envelop()
@@ -300,6 +301,77 @@ def update_facility(id):
         return fatal_error_envelop()
     else:
         return record_updated_envelop(request.json)
+
+
+@api.route('/facilitytypes', methods=['POST'])
+@create_update_permission('division_management_perm')
+def create_facility_type():
+    if not request.json:
+        abort(400)
+    if not all(len(val.strip()) >= 1 for val in request.json.values()):
+        return length_require_envelop()
+    
+    if 'name' in request.json:
+        request.json['display_name'] = request.json['name'].strip()
+        request.json['name'] = request.json['name'].strip().lower()
+    
+    try:
+        db_session.add(FacilityType(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        raise
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+
+@api.route('/facilitytypes/<int:id>', methods=['PUT'])
+@create_update_permission('company_management_perm')
+def update_facility_type(id):
+    if not request.json:
+        abort(400)
+    
+    
+    
+    #now try to update the facilty name
+    if 'name' in request.json:
+        request.json['display_name'] = request.json['name']
+        request.json['name'] = request.json['name'].lower().strip()
+
+    try:
+        facility = db_session.query(FacilityType).filter(FacilityType.id==id).update(request.json)
+        
+        db_session.commit()
+    except NoResultFound as e:
+        abort(404)
+    except IntegrityError as e:
+        return record_exists_envelop()
+    except Exception as e:
+         
+        abort(500)
+    else:
+        return record_updated_envelop(request.json)
+
+
+@api.route('/facilitytypes', methods=['GET'])
+def get_facilitytypes():
+    try:
+        fts = db_session.query(FacilityType).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    else:
+        return records_json_envelop(list(ft.to_dict() for ft in fts))
+
+@api.route('/facilitytypes/<int:id>', methods=['GET'])
+def get_facilitytype(id):
+    try:
+        ft = db_session.query(FacilityType).filter(FacilityType.id == id).one()
+    except NoResultFound:
+        return record_notfound_envelop()
+    else:
+        return record_json_envelop(ft.to_dict())
 
 
 @api.route('/branches/<int:b_id>/employees')

@@ -40,29 +40,6 @@ from hris.api.auth import (
 
 
 
-@api.route('/facilitytypes', methods=['POST'])
-@create_update_permission('company_management_perm')
-def create_facility_type():
-    if not set(request.json.keys()) == {'name'}:
-        return jsonify({'message' : 'missing keys'})
-    
-    if not len(request.json['name']) > 2:
-        return jsonify({'message' : 'not adequate lenght'})
-    
-    #lower case the facility name
-    display_name = request.json['name'].strip()
-    name = request.json['name'].replace(' ', '').lower().strip()
-
-    #insert into the database
-    try:
-        fac = FacilityType(name=name, display_name=display_name)
-        db_session.add(fac)
-        db_session.commit()
-    except IntegrityError as ie:
-        return record_exists_envelop()
-    
-    else:
-        return record_created_envelop(request.json)
 
 
 @api.route('/facilitytypes/<int:f_id>', methods=['DELETE'])
@@ -195,18 +172,6 @@ def create_region():
 #...........................>#
 
 
-@api.route('/facilitytypes', methods=['GET'])
-@read_permission('read_management_perm')
-def get_facilitytypes():
-    
-    try:
-        facilities = db_session.query(FacilityType).order_by(FacilityType.name).all()
-        gen_exp = (dict(name = f.display_name, id=f.id, del_flag=f.del_flag) for f in facilities)
-        return records_json_envelop(list(gen_exp))
-    except Exception as e:
-        raise
-        return fatal_error_envelop()
-
 @api.route('/llg', methods=['GET'])
 @read_permission('read_management_perm')
 def get_llg():
@@ -256,32 +221,7 @@ def get_regions():
 #..............................
     
 
-@api.route('/facilitytypes/<int:id>', methods=['PUT'])
-@create_update_permission('company_management_perm')
-def update_facility_type(id):
-    if not request.json:
-        abort(400)
-    
-    
-    
-    #now try to update the facilty name
-    if 'name' in request.json:
-        request.json['display_name'] = request.json['name']
-        request.json['name'] = request.json['name'].lower().strip()
 
-    try:
-        facility = db_session.query(FacilityType).filter(FacilityType.id==id).update(request.json)
-        
-        db_session.commit()
-    except NoResultFound as e:
-        abort(404)
-    except IntegrityError as e:
-        return record_exists_envelop()
-    except Exception as e:
-         
-        abort(500)
-    else:
-        return record_updated_envelop(request.json)
 
 
 @api.route('/llg/<int:id>', methods=['PUT'])
