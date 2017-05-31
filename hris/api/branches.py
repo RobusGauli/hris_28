@@ -93,7 +93,7 @@ def handle_update_division_keys(model, exclude=None):
 
 
 @api.route('/agencytypes', methods=['POST'])
-#@create_update_permission('division_management_perm')
+@create_update_permission('division_management_perm')
 def create_agencytypes():
     if not request.json:
         abort(400)
@@ -138,6 +138,7 @@ def get_agencytypes():
         return records_json_envelop(list(a.to_dict() for a in ats))
 
 @api.route('/agencytypes/<int:id>', methods=['PUT'])
+@create_update_permission('division_management_perm')
 def update_agencytype(id):
     if not request.json:
         abort(400)
@@ -164,6 +165,7 @@ def update_agencytype(id):
 
 
 @api.route('/agencies', methods=['POST'])
+@create_update_permission('division_management_perm')
 def create_agency():
     if not request.json:
         abort(400)
@@ -199,6 +201,7 @@ def get_agencies():
 
 
 @api.route('/agencies/<int:id>', methods=['PUT'])
+@create_update_permission('division_management_perm')
 def update_agency(id):
     if not request.json:
         abort(400)
@@ -225,9 +228,10 @@ def update_agency(id):
 
 
 @api.route('/agencies/<int:id>', methods=['GET'])
-def get_agency(a_id):
+@read_permission('read_management_perm')
+def get_agency(id):
     try:
-        agency = db_session.query(Agency).filter(Agency.id == a_id).one()
+        agency = db_session.query(Agency).filter(Agency.id == id).one()
     except NoResultFound:
         return record_notfound_envelop()
     except Exception:
