@@ -374,6 +374,11 @@ def get_facilitytype(id):
         return record_json_envelop(ft.to_dict())
 
 
+@api.route('/facilitytypes/<int:f_id>/facilities', methods=['POST'])
+@create_update_permission('division_management_perm')
+def create_facilities_by_facility_type(f_id):
+    if not request.json
+
 @api.route('/branches/<int:b_id>/employees')
 @read_permission('read_management_perm')
 def get_employees_by_branch(b_id):

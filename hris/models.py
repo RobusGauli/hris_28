@@ -238,6 +238,7 @@ class Agency(Base):
     region = relationship('Region', back_populates='agencies')
     agency_type = relationship('AgencyType', back_populates='agencies')
 
+    facilities = relationship('Facility', back_populates='agency', cascade='all, delete, delete-orphan')
     def to_dict(self):
         val_mapper  = lambda item : item if item else ''
         adict = {key : val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')}
@@ -273,8 +274,9 @@ class Facility(Base):
     district_id = Column(Integer, ForeignKey('districts.id'))
     province_id = Column(Integer, ForeignKey('provinces.id'))
     region_id = Column(Integer, ForeignKey('regions.id'))
-
+    agency_id = Column(Integer, ForeignKey('agencies.id'))
     #relationship
+    agency = relationship('Agency', back_populates='facilities')
     facility_type = relationship('FacilityType', back_populates='facilities')
     llg = relationship('LLG', back_populates='facilities')
     district = relationship('District', back_populates='facilities')
