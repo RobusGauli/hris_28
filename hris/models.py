@@ -213,9 +213,25 @@ class Agency(Base):
     __tablename__ = 'agencies'
 
     id = Column(Integer, Sequence('agencies_id'), primary_key=True)
-    agency_code = Column(String(10), unique=True)
-    agency_name = Column(String(30), nullable=False, unique=True)
-    agency_display_name = Column(String(30), nullable=False)
+    code = Column(String(10), unique=True)
+    name = Column(String(50), nullable=False, unique=True)
+    display_name = Column(String(50), nullable=False)
+    address_one = Column(String(50), nullable=False)
+    address_two = Column(String(50), nullable=False)
+
+    
+    
+    district_id = Column(Integer, ForeignKey('districts.id'))
+    province_id = Column(Integer, ForeignKey('provinces.id'))
+    region_id = Column(Integer, ForeignKey('regions.id'))
+    
+    contact_number = Column(String(15), nullable=False)
+    fax_number = Column(String(15), nullable=False)
+    email = Column(String(50))
+    con_person_name = Column(String(50))
+    con_per_mob_num = Column(String(50))
+    con_per_email = Column((String(50)))
+    
     
 class Facility(Base):
     __tablename__ = 'facilities'

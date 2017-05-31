@@ -92,7 +92,7 @@ def handle_update_division_keys(model, exclude=None):
 
 
 @api.route('/agencytypes', methods=['POST'])
-@create_update_permission('division_management_perm')
+#@create_update_permission('division_management_perm')
 def create_agencytypes():
     if not request.json:
         abort(400)
@@ -160,6 +160,8 @@ def update_agencytype(id):
         return fatal_error_envelop()
     else:
         return record_updated_envelop(request.json)
+
+        
     
 @api.route('/facilities', methods=['POST'])
 @create_update_permission('division_management_perm')
