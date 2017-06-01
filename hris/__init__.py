@@ -2,22 +2,19 @@ import os
 
 from flask import Flask, current_app
 from flask_cors import CORS
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 
-
-
-#exception
-#########
 from psycopg2 import IntegrityError
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-##########
 
 from config import config
+
+
 
 #flask extension
 #start the engine
@@ -31,7 +28,26 @@ Base = declarative_base()
 Base.query = db_session.query_property()
 
 from hris.models import Role
-
+from hris.models import (
+    User, 
+    CompanyDetail,
+    Facility,
+    EmployeeCategoryRank,
+    EmployeeCategory,
+    EmployeeType,
+    Employee,
+    EmployeeExtra,
+    Qualification,
+    Certification,
+    Training,
+    AgencyType,
+    Agency,
+    FacilityType,
+    Region,
+    Province,
+    District,
+    LLG
+)
 ROLES_PERMISSION = {}
 
 def update_role_permission():
@@ -87,6 +103,19 @@ def create_app(config_name=None, main=True):
     #register the errohandler
     
     CORS(app)
+    admin = Admin(app, name='HRIS Control Panel', template_mode='bootstrap3')
+    admin.add_view(ModelView(AgencyType, db_session))
+    admin.add_view(ModelView(Agency, db_session))
+    admin.add_view(ModelView(FacilityType, db_session))
+    admin.add_view(ModelView(Facility, db_session))
+    admin.add_view(ModelView(CompanyDetail, db_session))
+    admin.add_view(ModelView(User, db_session))
+    admin.add_view(ModelView(Region, db_session))
+    admin.add_view(ModelView(Province, db_session))
+    admin.add_view(ModelView(District, db_session))
+    admin.add_view(ModelView(LLG, db_session))
+    #admin.add_view(ModelView(EmployeeCategory, db_session))
+    
     return app
 
 

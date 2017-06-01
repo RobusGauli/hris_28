@@ -211,6 +211,9 @@ class AgencyType(Base):
     to_dict = lambda self : {key : self._val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')}
 
 
+    def __repr__(self):
+        return '<Agency Type : %s>' % self.display_name
+
 class Agency(Base):
     __tablename__ = 'agencies'
 
@@ -247,7 +250,9 @@ class Agency(Base):
         adict['region'] = self.region.display_name if self.region else ''
         adict['agency_type'] = self.agency_type.display_name if self.agency_type else ''
         return adict
-
+    
+    def __repr__(self):
+        return '<Agency : %s >' % self.display_name
 
 class Facility(Base):
     __tablename__ = 'facilities'
@@ -330,7 +335,8 @@ class LLG(Base):
             'district_id' : self.district_id if self.district_id else '',
             
         }
-
+    def __repr__(self):
+        return '<LLG : %s>' % self.display_name
 
 class District(Base):
     __tablename__ = 'districts'
@@ -362,6 +368,9 @@ class District(Base):
             ]
             
         }
+    
+    def __repr__(self):
+        return '<District: %s>' % self.display_name
 
 class Province(Base):
     __tablename__ = 'provinces'
@@ -390,6 +399,9 @@ class Province(Base):
                 {'name' : d.display_name if d.display_name else ''} for d in self.districtss
             ] 
         }
+    
+    def __repr__(self):
+        return '<Province: %s>' % self.display_name
 
 class Region(Base):
     __tablename__ = 'regions'
@@ -404,7 +416,9 @@ class Region(Base):
     provinceses = relationship('Province', back_populates='region', cascade='all, delete, delete-orphan')
 
     agencies = relationship('Agency', back_populates='region', cascade='all, delete, delete-orphan')
-
+    
+    def __repr__(self):
+        return '<Region: %s>' % self.display_name
 
 
 #create an engine
