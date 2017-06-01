@@ -4,6 +4,7 @@ from flask import Flask, current_app
 from flask_cors import CORS
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
+from flasgger import Swagger
 
 from psycopg2 import IntegrityError
 from sqlalchemy import create_engine
@@ -103,7 +104,8 @@ def create_app(config_name=None, main=True):
     #register the errohandler
     
     CORS(app)
-    admin = Admin(app, name='HRIS Control Panel', template_mode='bootstrap3')
+    Swagger(app)
+    admin = Admin(app, name='HRIS Control Panel', template_mode='bootstrap2')
     admin.add_view(ModelView(AgencyType, db_session))
     admin.add_view(ModelView(Agency, db_session))
     admin.add_view(ModelView(FacilityType, db_session))

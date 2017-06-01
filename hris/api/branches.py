@@ -96,6 +96,42 @@ def handle_update_division_keys(model, exclude=None):
 @api.route('/agencytypes', methods=['POST'])
 @create_update_permission('division_management_perm')
 def create_agencytypes():
+    """
+    This is used to create a new agency type.
+    Call this api to create a new agency type.
+    ---
+    tags:
+      - Create a Agency Type
+    parameters:
+      - name: language
+        in: path
+        type: string
+        required: true
+        description: The language name
+      - name: size
+        in: query
+        type: integer
+        description: size of awesomeness
+    responses:
+      500:
+        description: Error The language is not awesome!
+      200:
+        description: A language with its awesomeness
+        schema:
+          id: awesome
+          properties:
+            language:
+              type: string
+              description: The language name
+              default: Lua
+            features:
+              type: array
+              description: The awesomeness list
+              items:
+                type: string
+              default: ["perfect", "simple", "lovely"]
+
+    """
     if not request.json:
         abort(400)
     #check for the empty fields
@@ -345,6 +381,9 @@ def create_facilities_by_facility_type(f_id):
     request.json['facility_display_name'] = request.json['facility_name'].strip()
     request.json['facility_name'] = request.json['facility_name'].lower().strip()
 
+    #now inject the facility type id
+    request.json['facility_type_id'] = f_id
+
     #now initiate the session
     try:
         db_session.add(Facility(**request.json))
@@ -357,6 +396,55 @@ def create_facilities_by_facility_type(f_id):
         return fatal_error_envelop()
     else:
         return record_created_envelop(request.json)
+
+@api.route('/facilitytypes/<int:f_id>/facilities', methods=['GET'])
+def get_facilities_by_factype(f_id):
+    try:
+        fcs = db_session.query(Facility).filter(Facility.facility_type_id == f_id).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(fc.to_dict() for fc in fcs))
+
+
+@api.route('/facilitytypes/<int:ft_id>/facilities/<int:f_id>', methods=['PUT'])
+def update_facilities_by_factype(ft_id, f_id):
+    if not request.json:
+        abort(400)
+    
+    #check to see if there is any empty fields
+    if not all(len(val.strip()) >= 1 for key, val in request.json.items()
+                                                if isinstance(val, str)):
+        return length_require_envelop()
+    
+    if 'facility_name' in request.json:
+        request.json['facility_display_name'] = request.json['facility_name'].strip()
+        request.json['facility_name'] = request.json['facility_name'].strip().lower()
+    
+    try:
+        db_session.query(Facility).filter(Facility.id == f_id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        raise
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
+
+@api.route('/facilitytypes/<int:ft_id>/facilities/<int:f_id>', methods=['GET'])
+def get_facility_(ft_id, f_id):
+    try:
+        ft = db_session.query(Facility).filter(Facility.id == f_id).one()
+    except NoResultFound:
+        return result_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_json_envelop(ft.to_dict())
 
 @api.route('/branches/<int:b_id>/employees')
 @read_permission('read_management_perm')

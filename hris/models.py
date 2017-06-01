@@ -292,7 +292,18 @@ class Facility(Base):
     employees = relationship('Employee', back_populates='employee_facility', cascade='all, delete, delete-orphan')
 
     _val_mapper = lambda self, item : item if item is not None else ''
-    to_dict = lambda self : {key : self._val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')}
+    def to_dict(self):
+        adict = {key : self._val_mapper(val) for key, val in vars(self).items() 
+                                            if not key.startswith('_')}
+        
+        adict['agency'] = self.agency.display_name if self.agency else ''
+        adict['facility_type'] = self.facility_type.display_name if self.facility_type else ''
+        adict['district'] = self.district.display_name if self.district else ''
+        adict['province'] = self.province.display_name if self.province else ''
+        adict['region'] = self.region.display_name if self.region else ''
+        adict['llg'] = self.llg.display_name if self.llg else ''
+
+        return adict
 
 
     def __repr__(self):
