@@ -212,7 +212,7 @@ class AgencyType(Base):
 
 
     def __repr__(self):
-        return '<Agency Type : %s>' % self.display_name
+        return '<AgencyType : %s id: %s>' % (self.display_name, self.id)
 
 class Agency(Base):
     __tablename__ = 'agencies'
@@ -252,7 +252,7 @@ class Agency(Base):
         return adict
     
     def __repr__(self):
-        return '<Agency : %s >' % self.display_name
+        return '<Agency : %s Id: %s>' % (self.display_name, self.id)
 
 class Facility(Base):
     __tablename__ = 'facilities'
@@ -295,6 +295,8 @@ class Facility(Base):
     to_dict = lambda self : {key : self._val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')}
 
 
+    def __repr__(self):
+        return '<Facility Name: %s Id: %s>' % (self.facility_display_name, self.id)
 
 
 
@@ -312,6 +314,8 @@ class FacilityType(Base):
     to_dict = lambda self : {key : self._val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')}
 
 
+    def __repr__(self):
+        return '<FacilityType Name: %s id: %s>' % (self.display_name, self.id)
 
 class LLG(Base):
     __tablename__ = 'llg'
@@ -336,7 +340,7 @@ class LLG(Base):
             
         }
     def __repr__(self):
-        return '<LLG : %s>' % self.display_name
+        return '<LLG : %s id: %s>' % (self.display_name, self.id)
 
 class District(Base):
     __tablename__ = 'districts'
@@ -370,7 +374,7 @@ class District(Base):
         }
     
     def __repr__(self):
-        return '<District: %s>' % self.display_name
+        return '<District: %s id: %s>' % (self.display_name, self.id)
 
 class Province(Base):
     __tablename__ = 'provinces'
@@ -401,7 +405,7 @@ class Province(Base):
         }
     
     def __repr__(self):
-        return '<Province: %s>' % self.display_name
+        return '<Province: %s id: %s>' % (self.display_name, self.id)
 
 class Region(Base):
     __tablename__ = 'regions'
@@ -418,7 +422,7 @@ class Region(Base):
     agencies = relationship('Agency', back_populates='region', cascade='all, delete, delete-orphan')
     
     def __repr__(self):
-        return '<Region: %s>' % self.display_name
+        return '<Region: %s id: %s>' % (self.display_name, self.id)
 
 
 #create an engine
