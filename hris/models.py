@@ -375,12 +375,8 @@ class District(Base):
             'id' : self.id,
             'name' : self.display_name if self.display_name else '',
             'del_flag' : self.del_flag if self.del_flag else False,
-            'district_code' : self.district_code if self.district_code else '',
-            'province' : self.province.display_name if self.province.display_name else '',
-            'province_id' : self.province_id if self.province_id else '',
-            'llgs' : [
-                { 'name' : l.display_name if l.display_name else ''} for l in self.llgs
-            ]
+            'district_code' : self.district_code if self.district_code else ''
+        
             
         }
     
@@ -408,12 +404,10 @@ class Province(Base):
             'province_code' : self.province_code if self.province_code else '',
             'del_flag' : self.del_flag if self.del_flag else False,
             'name' : self.display_name if self.display_name else '',
-            'region' : self.region.display_name if self.region.display_name else '',
-            'region_id' : self.region_id if self.region_id else '',
-            'districts' : [
-                {'name' : d.display_name if d.display_name else ''} for d in self.districtss
-            ] 
+            'region_id' : self.region_id if self.region_id else ''
         }
+    
+    
     
     def __repr__(self):
         return '<Province: %s id: %s>' % (self.display_name, self.id)

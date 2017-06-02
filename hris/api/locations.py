@@ -435,6 +435,31 @@ def delete_region(id):
         return jsonify({'code' : 200, 'status' : 'success', 'message' : 'deleted successfully'})
 
 
+@api.route('/regions/<int:id>/provinces', methods=['GET'])
+def get_provinces_by_region(id):
+    try:
+        provinces = db_session.query(Province).filter(Province.region_id == id).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(p.to_dict() for p in provinces))
+
+@api.route('/regions/<int:r_id>/provinces/<int:p_id>/districts', methods=['GET'])
+def get_districts_by_provincess(r_id, p_id):
+    try:
+        districts = db_session.query(District).filter(District.province_id == p_id).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(d.to_dict() for d in districts))
+
+
+
+
 
 @api.errorhandler(400)
 def badrequest(error):
