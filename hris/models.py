@@ -234,6 +234,7 @@ class Agency(Base):
     province_id = Column(Integer, ForeignKey('provinces.id'))
     region_id = Column(Integer, ForeignKey('regions.id'))
     agency_type_id = Column(Integer, ForeignKey('agencytypes.id'))
+    del_flag = Column(Boolean, default=False)
     
     #relationship
     district = relationship('District', back_populates='agencies')
@@ -290,6 +291,7 @@ class Facility(Base):
 
     #realiationhsip
     employees = relationship('Employee', back_populates='employee_facility', cascade='all, delete, delete-orphan')
+    fac_divisions = relationship('FacilityDivision', back_populates = 'facility', cascade='all, delete, delete-orphan')
 
     _val_mapper = lambda self, item : item if item is not None else ''
     def to_dict(self):
@@ -327,6 +329,68 @@ class FacilityType(Base):
 
     def __repr__(self):
         return '<FacilityType Name: %s id: %s>' % (self.display_name, self.id)
+
+class DivisionTypeSetup(Base):
+    __tablename__ = 'divisiontypes'
+
+    id = Column(Integer, Sequence('divisiontypes_id'), primary_key=True)
+    name = Column(String(50), nullable=False, unique=True)
+    display_name = Column(String(50))
+    del_flag = Column(Boolean, default=False)
+
+    #relationship
+    divisions = relationship('Division', back_populates='division_type', cascade='all, delete, delete-orphan')
+    _val_mapper = lambda self, item  : item if item else ''
+    to_dict  = lambda self : {key : self._val_mapper(val) for key, val in vars(self).items()
+                                                    if not key.startswith('_')}
+
+
+
+class Division(Base):
+    __tablename__ = 'divisions'
+
+    id = Column(Integer, Sequence('divisions_id'), primary_key=True)
+    name = Column(String(50), unique=True, nullable=False)
+    display_name = Column(String(50))
+    code = Column(String(10), unique=True)
+    division_type_id = Column(Integer, ForeignKey('divisiontypes.id'))
+    del_flag = Column(Boolean, default=False)
+
+    #realtionship
+    division_type = relationship('DivisionTypeSetup', back_populates= 'divisions')
+
+    _val_mapper = lambda self, item : item if item else ''
+
+    def to_dict(self):
+        adict = {key : self._val_mapper(val) for key, val in vars(self).items()
+                                                if not key.startswith('_')}
+        return adict
+    
+    def __repr___(self):
+        return '<Division Name : %s Id : %s>' %(self.display_name, self.id)
+
+class FacilityDivision(Base):
+    __tablename__ = 'facility_divisions'
+
+    id = Column(Integer, Sequence('fac_div_id'), primary_key=True)
+    fac_div_name = Column(String(30), unique=True, nullable=False)
+    facility_id = Column(Integer, ForeignKey('facilities.id'), nullable=False)
+    del_flag = Column(Boolean, default=False)
+    #relationship
+    facility = relationship('Facility', back_populates='fac_divisions')
+    _val_mapper = lambda self, item : item if item else ''
+
+    def to_dict(self):
+         return {
+             'fac_div_name' : self.fac_div_name if self.fac_div_name else '',
+             'del_flag' : self.del_flag if self.del_flag else '',
+             
+         }
+    def __repr__(self):
+        return '<FacilityDivision Name : %s Id : %s>' % (self.fac_div_name, self.id)
+
+
+
 
 class LLG(Base):
     __tablename__ = 'llg'

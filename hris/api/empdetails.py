@@ -34,8 +34,6 @@ from hris.models import (
     EmployeeDisciplinary,
     EmployeeAppraisalType,
     EmployeeAppraisal
-
-
 )
 
 
@@ -52,6 +50,7 @@ from hris.api.response_envelop import (
     length_require_envelop,
     extra_keys_envelop
 )
+
 from hris.api.auth import (
     allow_permission, 
     create_update_permission,

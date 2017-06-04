@@ -47,7 +47,10 @@ from hris.models import (
     Region,
     Province,
     District,
-    LLG
+    LLG,
+    DivisionTypeSetup,
+    Division,
+    FacilityDivision
 )
 ROLES_PERMISSION = {}
 
@@ -116,6 +119,9 @@ def create_app(config_name=None, main=True):
     admin.add_view(ModelView(Province, db_session))
     admin.add_view(ModelView(District, db_session))
     admin.add_view(ModelView(LLG, db_session))
+    admin.add_view(ModelView(DivisionTypeSetup, db_session))
+    admin.add_view(ModelView(Division, db_session))
+    admin.add_view(ModelView(FacilityDivision, db_session))
     #admin.add_view(ModelView(EmployeeCategory, db_session))
     
     return app

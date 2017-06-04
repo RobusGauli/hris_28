@@ -37,7 +37,10 @@ from hris.models import (
     Training,
     AgencyType,
     Agency,
-    FacilityType
+    FacilityType,
+    DivisionTypeSetup,
+    Division,
+    FacilityDivision
 )
 
 
@@ -59,13 +62,6 @@ from hris.api.response_envelop import (
 
 
 
-
-
-
-
-
-
-    
 
 def handle_update_division_keys(model, exclude=None):
     def decorator(func):
@@ -445,6 +441,197 @@ def get_facility_(ft_id, f_id):
         return fatal_error_envelop()
     else:
         return record_json_envelop(ft.to_dict())
+
+@api.route('/facilitytypes/<int:ft_id>/facilities/<int:f_id>/facdivisions', methods=['POST'])
+def create_facility_division(ft_id, f_id):
+    if not request.json:
+        abort(400)
+    if 'fac_div_name' not in request.json:
+        return keys_require_envelop()
+    
+    if not all(len(val.strip()) >= 1 for val in request.json.values()
+                                            if isinstance(val, unicode)):
+        return length_require_envelop()
+    
+    #inject the value into the json
+    request.json['facility_id'] = f_id
+
+    try:
+        db_session.add(FacilityDivision(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        raise
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/facilitytypes/<int:ft_id>/facilities/<int:f_id>/facdivisions/<int:fd_id>', methods=['PUT'])
+def update_facility_division(ft_id, f_id, fd_id):
+    if not request.json:
+        abort(400)
+    
+    if not all(len(val.strip()) >= 1 for val in request.json.values()
+                                            if isinstance(val, unicode)):
+        return length_require_envelop()
+    
+    #inject the value into the json
+    
+
+    try:
+        db_session.query(FacilityDivision).filter(FacilityDivision.id == fd_id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
+
+@api.route('/facilitytypes/<int:ft_id>/facilities/<int:f_id>/facdivisions', methods=['GET'])
+def get_facility_division(ft_id, f_id):
+    
+    try:
+        divs = db_session.query(FacilityDivision).filter(FacilityDivision.facility_id == f_id).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        raise
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(d.to_dict() for d in divs))
+
+
+#now for division type setup
+
+@api.route('/divisiontypes', methods=['POST'])
+def create_division_types():
+    if not request.json:
+        abort(400)
+    #empty check
+    if not all(len(val.strip()) >= 1 for val in request.json.values() 
+                                        if isinstance(val, unicode)):
+        return length_require_envelop()
+
+    
+    _result = {'name'} - set(request.json.keys())
+    if _result:
+        return keys_require_envelop('key : name is required')
+    
+    request.json['display_name'] = request.json['name'].strip()
+    request.json['name'] = request.json['name'].strip().lower()
+
+    try:
+        db_session.add(DivisionTypeSetup(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+
+@api.route('/divisiontypes', methods=['GET'])
+def get_division_types():
+    try:
+        div_types = db_session.query(DivisionTypeSetup).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(d.to_dict() for d in div_types))
+
+@api.route('/divisiontypes/<int:id>', methods=['PUT'])
+def update_division_type(id):
+    if not request.json:
+        abort(400)
+    
+    if not all(len(val.strip()) >= 1 for val in request.json.values()
+                                        if isinstance(val, unicode)):
+        return length_require_envelop()
+    
+    if 'name' in request.json:
+        request.json['display_name'] = request.json['name'].strip()
+        request.json['name'] = request.json['name'].lower().strip()
+
+    try:
+        db_session.query(DivisionTypeSetup).filter(DivisionTypeSetup.id == id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json) 
+
+
+@api.route('/divisiontypes/<int:t_id>/divisions', methods=['POST'])
+def create_division(t_id):
+    if not request.json:
+        abort(400)
+    if not all(len(val.strip()) >= 1 for val in request.json.values()
+                                            if isinstance(val, unicode)):
+        return length_require_envelop()
+    
+    _result = {'name', 'code'} - set(request.json.keys())
+    if _result:
+        return keys_require_envelop('Key: %r is require' % ', '.join(_result))
+    
+    request.json['display_name'] = request.json['name'].strip()
+    request.json['name'] = request.json['name'].strip().lower()
+
+    #inject the id
+    request.json['division_type_id'] = t_id
+    try:
+        db_session.add(Division(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+
+@api.route('/divisiontypes/<int:t_id>/divisions', methods=['GET'])
+def get_divisions_by_type(t_id):
+    try:
+        divisions = db_session.query(Division).filter(Division.division_type_id == t_id).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(d.to_dict() for d in divisions))
+
+
+@api.route('/divisiontypes/<int:t_id>/divisions/<int:id>', methods=['PUT'])
+def update_divisions_by_type(t_id,id):
+    if not request.json:
+        abort(400)
+    
+    if not all(len(val.strip()) >= 1 for val in request.json.values()
+                                            if isinstance(val, unicode)):
+        return length_require_envelop()
+    if 'name' in request.json:
+        request.json['display_name'] = request.json['name'].strip()
+        request.json['name'] = request.json['name'].strip().lower()
+
+    try:
+        db_session.query(Division).filter(Division.id == id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
 
 @api.route('/branches/<int:b_id>/employees')
 @read_permission('read_management_perm')
