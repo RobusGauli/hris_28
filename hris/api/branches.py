@@ -633,6 +633,17 @@ def update_divisions_by_type(t_id,id):
         return record_updated_envelop(request.json)
 
 
+@api.route('/facilities')
+def get_facilities():
+    try:
+        facs = db_session.query(Facility).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(f.to_dict() for f in facs))
+
 @api.route('/branches/<int:b_id>/employees')
 @read_permission('read_management_perm')
 def get_employees_by_branch(b_id):
