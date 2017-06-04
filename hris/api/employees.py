@@ -67,7 +67,7 @@ def create_employee():
                   'is_branch',
                   
                   'employement_number',
-                  'employee_branch_id'}
+                  'employee_agency_id'}
     result = req_fields  - set(request.json.keys())
 
     #if there is some value then abort
@@ -172,7 +172,7 @@ def get_employees():
                   'contract_end_date' : emp.contract_end_date if emp.contract_end_date else '',
                   'id' : emp.id if emp.id else '',
                   'user_id' : emp.user_id if emp.user_id else '',
-                  'employee_branch_id' : emp.employee_branch_id if emp.employee_branch_id else '',
+                  'employee_agency_id' : emp.employee_agency_id if emp.employee_agency_id else '',
                   'role_id' : emp.user.role_id if emp.user else '',
                   'salutation' : emp.salutation if emp.salutation else ''
                                     

@@ -38,6 +38,7 @@ from hris.models import (
     EmployeeType,
     Employee,
     EmployeeExtra,
+    EmployeePosition,
     Qualification,
     Certification,
     Training,
@@ -123,6 +124,12 @@ def create_app(config_name=None, main=True):
     admin.add_view(ModelView(Division, db_session))
     admin.add_view(ModelView(FacilityDivision, db_session))
     #admin.add_view(ModelView(EmployeeCategory, db_session))
+    admin.add_view(ModelView(EmployeeCategoryRank, db_session))
+    admin.add_view(ModelView(EmployeeCategory, db_session))
+    admin.add_view(ModelView(EmployeeType, db_session))
+    admin.add_view(ModelView(EmployeePosition, db_session))
+    
+    admin.add_view(ModelView(Employee, db_session))
     
     return app
 

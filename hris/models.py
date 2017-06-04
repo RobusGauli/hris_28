@@ -235,6 +235,8 @@ class Agency(Base):
     region_id = Column(Integer, ForeignKey('regions.id'))
     agency_type_id = Column(Integer, ForeignKey('agencytypes.id'))
     del_flag = Column(Boolean, default=False)
+
+    
     
     #relationship
     district = relationship('District', back_populates='agencies')
@@ -243,6 +245,8 @@ class Agency(Base):
     agency_type = relationship('AgencyType', back_populates='agencies')
 
     facilities = relationship('Facility', back_populates='agency', cascade='all, delete, delete-orphan')
+    employees = relationship('Employee', back_populates = 'employee_agency', cascade='all, delete, delete-orphan')
+    
     def to_dict(self):
         val_mapper  = lambda item : item if item else ''
         adict = {key : val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')}
@@ -290,7 +294,7 @@ class Facility(Base):
     region = relationship('Region', back_populates='facilities')
 
     #realiationhsip
-    employees = relationship('Employee', back_populates='employee_facility', cascade='all, delete, delete-orphan')
+    
     fac_divisions = relationship('FacilityDivision', back_populates = 'facility', cascade='all, delete, delete-orphan')
 
     _val_mapper = lambda self, item : item if item is not None else ''
@@ -611,9 +615,8 @@ class Employee(Base):
 
     under_ndoh = Column(Boolean, nullable=False, default=True)
     #branch_id_of_employee
-    employee_facility_id = Column(Integer, ForeignKey('facilities.id'), nullable=False)
+    employee_agency_id = Column(Integer, ForeignKey('agencies.id'), nullable=False)
     #relationship
-    employee_facility = relationship('Facility', back_populates='employees')
 
     employee_type_id = Column(Integer, ForeignKey('emp_types.id'), nullable=False)
     employee_category_id = Column(Integer, ForeignKey('emp_categories.id'), nullable=False)
@@ -629,6 +632,7 @@ class Employee(Base):
     employee_type = relationship('EmployeeType', back_populates='employees')
     employee_category = relationship('EmployeeCategory', back_populates='employees')
     employee_position = relationship('EmployeePosition', back_populates='employees')
+    employee_agency = relationship('Agency', back_populates='employees')
     #other relationship
     qualifications = relationship('Qualification', back_populates='employee', cascade='all, delete, delete-orphan')
     certifications = relationship('Certification', back_populates='employee', cascade='all, delete, delete-orphan')
@@ -652,6 +656,7 @@ class Employee(Base):
             'id' : self.id if self.id else ''
         }
         return data
+    adict = lambda self : vars(self)
 
 class EmployeeExtra(Base):
     __tablename__ = 'employee_extra'
