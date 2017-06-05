@@ -388,6 +388,7 @@ class FacilityDivision(Base):
          return {
              'fac_div_name' : self.fac_div_name if self.fac_div_name else '',
              'del_flag' : self.del_flag if self.del_flag else '',
+             'id' : self.id if self.id else ''
              
          }
     def __repr__(self):
