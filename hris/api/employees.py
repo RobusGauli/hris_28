@@ -77,8 +77,8 @@ def create_employee():
        
     
     #if everything is included, check to see if there is any empty values
-    if not all(len(str(val).strip()) >= 1 for key, val in request.json.items()):
-        abort(411)
+    # if not all(len(str(val).strip()) >= 1 for key, val in request.json.items()):
+    #     abort(411)
     
     #now clean up the data to insert into database(onyl for strin)
     data = {key : val.strip() if isinstance(val, str) else val for key, val in request.json.items()}
