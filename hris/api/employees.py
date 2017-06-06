@@ -194,7 +194,7 @@ def get_employee(id):
     except Exception as e:
         return fatal_error_envelop()
     else:
-        return jsonify({ 'first_name' : emp.first_name if emp.first_name else '',
+        return record_json_envelop({ 'first_name' : emp.first_name if emp.first_name else '',
                   'middle_name' : emp.middle_name if emp.middle_name else '',
                   'last_name' : emp.last_name if emp.last_name else '',
                   'sex' : emp.sex if emp.sex else '',
