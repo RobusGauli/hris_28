@@ -64,7 +64,7 @@ def create_employee():
                   'employee_type_id', 
                   'employee_category_id',
                   'date_of_birth',
-                  'is_branch',
+                  'employee_position_id'
                   
                   'employement_number',
                   'employee_agency_id'}
@@ -73,7 +73,7 @@ def create_employee():
     #if there is some value then abort
     if result:
         
-        abort(400)
+        return keys_require_envelop('Key required %s' % ', '.join(result))
        
     
     #if everything is included, check to see if there is any empty values
