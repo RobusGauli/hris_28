@@ -218,12 +218,13 @@ def get_employee(id):
                   'contract_end_date' : emp.contract_end_date if emp.contract_end_date else '',
                   'id' : emp.id if emp.id else '',
                   'user_id' : emp.user_id if emp.user_id else '',
-                  'employee_branch_id' : emp.employee_branch_id if emp.employee_branch_id else '',
-                  'employee_branch' : emp.employee_branch.facility_display_name if emp.employee_branch.facility_display_name else '',
+                  
+                  
                   'employee_type' : emp.employee_type.display_name if emp.employee_type.display_name else '',
                   'employee_category' : emp.employee_category.name if emp.employee_category.name else '',
                   'employee_position' : emp.employee_position.emp_pos_title_display_name if emp.employee_position.emp_pos_title_display_name else '',
-                  'is_branch' : emp.is_branch,
+                  'employee_agency_id' : emp.employee_agency_id if emp.employee_agency_id else '',
+                  'employee_agency' : emp.employee_agency.display_name if emp.employee_agency else '',
                   'employee_type_id' : emp.employee_type_id if emp.employee_type_id else '',
                   'employee_position_id' : emp.employee_position_id if emp.employee_position_id else '',
                   'employee_category_id' : emp.employee_category_id if emp.employee_category_id else '',
