@@ -64,7 +64,7 @@ def create_employee():
                   'employee_type_id', 
                   'employee_category_id',
                   'date_of_birth',
-                  'employee_position_id'
+                  'employee_position_id',
                   
                   'employement_number',
                   'employee_agency_id'}
