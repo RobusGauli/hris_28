@@ -79,7 +79,7 @@ def create_division_position():
     except IntegrityError:
         return records_exists_envelop()
     except Exception:
-        raise
+        
         return fatal_error_envelop()
     else:
         return record_created_envelop(request.json)
@@ -125,3 +125,14 @@ def get_division_position(id):
         return fatal_error_envelop()
     else:
         return record_json_envelop(dv.to_dict())
+
+@api.route('/facdivisions/<int:f_id>/divisionpositions', methods=['GET'])
+def get_divpositions_by_facdiv(f_id):
+    try:
+        dvs = db_session.query(DivisionPosition).filter(DivisionPosition.fac_div_id == f_id).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(dv.to_dict() for dv in dvs))
