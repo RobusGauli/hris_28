@@ -113,8 +113,8 @@ def update_employee(id):
     if not request.json:
         abort(400)
     
-    if not all(len(str(val).strip()) >= 1 for key, val in request.json.items()):
-        abort(411)
+    # if not all(len(str(val).strip()) >= 1 for key, val in request.json.items()):
+    #     abort(411)
 
     if 'age' not in request.json or 'retirement_age' not in request.json:
         return jsonify({'message' : 'please send both the age and retirement_age'})

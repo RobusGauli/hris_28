@@ -384,6 +384,9 @@ class FacilityDivision(Base):
     facility = relationship('Facility', back_populates='fac_divisions')
     _val_mapper = lambda self, item : item if item else ''
 
+    div_positions = relationship('DivisionPosition', back_populates='fac_div', cascade='all, delete, delete-orphan')
+
+
     def to_dict(self):
          return {
              'fac_div_name' : self.fac_div_name if self.fac_div_name else '',
@@ -394,6 +397,26 @@ class FacilityDivision(Base):
     def __repr__(self):
         return '<FacilityDivision Name : %s Id : %s>' % (self.fac_div_name, self.id)
 
+class DivisionPosition(Base):
+    __tablename__ = 'division_positions'
+
+    id = Column(Integer, Sequence('div_pos_id'), primary_key=True)
+    div_pos_code = Column(String(9), unique=True, nullable=False)
+    div_pos_name  = Column(String(20), unique=True, nullable=False)
+    fac_div_id = Column(Integer, ForeignKey('facility_divisions.id'), nullable=False) #foreigne
+    div_emp_id = Column(Integer, ForeignKey('employees.id'), unique=True, nullable=True) #foreign
+    position_title = Column(String(100))
+    description = Column(String(400))
+    del_flag = Column(Boolean, default=False)
+    #realtionship
+    fac_div = relationship('FacilityDivision', back_populates='div_positions')
+    div_emp = relationship('Employee', back_populates = 'div_position')
+
+    def to_dict(self):
+        return {key : val if val else '' for key, val in vars(self).items() if not key.startswith('_') }
+    
+    def __repr__(self):
+        return '<Division Position Code : %s Id : %s >' % (self.div_pos_code, self.id)
 
 
 
@@ -628,6 +651,7 @@ class Employee(Base):
 
     #one to one with employeeextra table
     employee_extra = relationship('EmployeeExtra', uselist=False, back_populates='employee')
+    div_position = relationship('DivisionPosition', uselist=False, back_populates='div_emp')
 
     #relationship 
     employee_type = relationship('EmployeeType', back_populates='employees')
@@ -677,7 +701,7 @@ class EmployeeExtra(Base):
 
     #relationship
     employee = relationship('Employee', back_populates='employee_extra')
-
+# 
 class EmployeeRelativeType(Base):
     __tablename__ = 'emp_relative_types'
     

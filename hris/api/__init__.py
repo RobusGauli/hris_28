@@ -9,7 +9,8 @@ from hris.api import (
     employeecategories, 
     employees,
     roles,
-    empdetails
+    empdetails,
+    divisionpositions
 )
 
 
