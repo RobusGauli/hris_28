@@ -77,7 +77,7 @@ def create_division_position():
         db_session.add(DivisionPosition(**request.json))
         db_session.commit()
     except IntegrityError:
-        return records_exists_envelop()
+        return record_exists_envelop()
     except Exception:
         
         return fatal_error_envelop()
