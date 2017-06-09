@@ -492,7 +492,7 @@ def update_facility_division(ft_id, f_id, fd_id):
 
 
 @api.route('/facilitytypes/<int:ft_id>/facilities/<int:f_id>/facdivisions', methods=['GET'])
-def get_facility_division(ft_id, f_id):
+def get_facility_divisions(ft_id, f_id):
     
     try:
         divs = db_session.query(FacilityDivision).filter(FacilityDivision.facility_id == f_id).all()
@@ -602,6 +602,17 @@ def create_division(t_id):
 def get_divisions_by_type(t_id):
     try:
         divisions = db_session.query(Division).filter(Division.division_type_id == t_id).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop(list(d.to_dict() for d in divisions))
+
+@api.route('/divisions', methods=['GET'])
+def get_divisions()):
+    try:
+        divisions = db_session.query(Division).all()
     except NoResultFound:
         return record_notfound_envelop()
     except Exception:
