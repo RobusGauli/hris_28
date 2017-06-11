@@ -308,7 +308,7 @@ class Facility(Base):
         adict['province'] = self.province.display_name if self.province else ''
         adict['region'] = self.region.display_name if self.region else ''
         adict['llg'] = self.llg.display_name if self.llg else ''
-
+        
         return adict
 
 

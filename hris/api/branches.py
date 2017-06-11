@@ -442,8 +442,8 @@ def get_facility_(ft_id, f_id):
     else:
         return record_json_envelop(ft.to_dict())
 
-@api.route('/facilitytypes/<int:ft_id>/facilities/<int:f_id>/facdivisions', methods=['POST'])
-def create_facility_division(ft_id, f_id):
+@api.route('facilities/<int:f_id>/facdivisions', methods=['POST'])
+def create_facility_division(f_id):
     if not request.json:
         abort(400)
     if 'fac_div_name' not in request.json:
@@ -467,8 +467,8 @@ def create_facility_division(ft_id, f_id):
     else:
         return record_created_envelop(request.json)
 
-@api.route('/facilitytypes/<int:ft_id>/facilities/<int:f_id>/facdivisions/<int:fd_id>', methods=['PUT'])
-def update_facility_division(ft_id, f_id, fd_id):
+@api.route('/facilities/<int:f_id>/facdivisions/<int:fd_id>', methods=['PUT'])
+def update_facility_division(f_id, fd_id):
     if not request.json:
         abort(400)
     
@@ -610,7 +610,7 @@ def get_divisions_by_type(t_id):
         return records_json_envelop(list(d.to_dict() for d in divisions))
 
 @api.route('/divisions', methods=['GET'])
-def get_divisions()):
+def get_divisions():
     try:
         divisions = db_session.query(Division).all()
     except NoResultFound:
