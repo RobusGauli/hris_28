@@ -425,7 +425,7 @@ def update_facilities_by_factype(ft_id, f_id):
     except IntegrityError:
         return record_exists_envelop()
     except Exception:
-        raise
+        
         return fatal_error_envelop()
     else:
         return record_updated_envelop(request.json)
@@ -442,7 +442,7 @@ def get_facility_(ft_id, f_id):
     else:
         return record_json_envelop(ft.to_dict())
 
-@api.route('facilities/<int:f_id>/facdivisions', methods=['POST'])
+@api.route('/facilities/<int:f_id>/facdivisions', methods=['POST'])
 def create_facility_division(f_id):
     if not request.json:
         abort(400)
@@ -460,7 +460,7 @@ def create_facility_division(f_id):
         db_session.add(FacilityDivision(**request.json))
         db_session.commit()
     except IntegrityError:
-        raise
+        
         return record_exists_envelop()
     except Exception:
         return fatal_error_envelop()
