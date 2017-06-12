@@ -377,7 +377,7 @@ class FacilityDivision(Base):
     __tablename__ = 'facility_divisions'
 
     id = Column(Integer, Sequence('fac_div_id'), primary_key=True)
-    fac_div_name = Column(String(30), unique=True, nullable=False)
+    fac_div_name = Column(String(30), nullable=False)
     facility_id = Column(Integer, ForeignKey('facilities.id'), nullable=False)
     del_flag = Column(Boolean, default=False)
     #relationship
