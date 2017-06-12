@@ -413,6 +413,7 @@ class DivisionPosition(Base):
     div_emp = relationship('Employee', back_populates = 'div_position')
 
     def to_dict(self):
+        #this is awesome
         adict = {key : val if val else '' for key, val in vars(self).items() if not key.startswith('_') }
         if self.div_emp:
             adict['fullname'] = self.div_emp.first_name + self.div_emp.last_name
