@@ -686,7 +686,8 @@ class Employee(Base):
             'address_one' : self.address_one if self.address_one else '',
             'contact_number' : self.contact_number if self.contact_number else '',
             'country' : self.country if self.country else '',
-            'id' : self.id if self.id else ''
+            'id' : self.id if self.id else '',
+            'fullname' : self.first_name + ' ' + self.last_name
         }
         return data
     adict = lambda self : vars(self)
