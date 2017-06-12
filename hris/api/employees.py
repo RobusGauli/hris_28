@@ -174,7 +174,8 @@ def get_employees():
                   'user_id' : emp.user_id if emp.user_id else '',
                   'employee_agency_id' : emp.employee_agency_id if emp.employee_agency_id else '',
                   'role_id' : emp.user.role_id if emp.user else '',
-                  'salutation' : emp.salutation if emp.salutation else ''
+                  'salutation' : emp.salutation if emp.salutation else '',
+                  'fullname' : emp.first_name + ' ' + emp.last_name
                                     
 
         } for emp in employees)
