@@ -474,7 +474,8 @@ class District(Base):
             'name' : self.display_name if self.display_name else '',
             'del_flag' : self.del_flag if self.del_flag else False,
             'district_code' : self.district_code if self.district_code else '',
-            'province' : self.province.display_name if self.province else ''
+            'province' : self.province.display_name if self.province else '',
+            'province_id' : self.province_id if self.province_id else ''
         
             
         }
