@@ -252,12 +252,18 @@ def get_password_policy():
 def get_company_detail():
     try:
         company = db_session.query(CompanyDetail).filter(CompanyDetail.id == 1).one()
+        adict = company.to_dict()
+        district = db_session.query(District).filter(District.id == int(company.district)).one()
+        adict['district_name'] = district.display_name
+        adict['province_name'] = district.province.display_name
+        adict['region_name'] = district.province.region.display_name
+
     except NoResultFound as e:
         return record_notfound_envelop()
     except Exception as e:
         return fatal_error_envelop()
     else:
-        return record_json_envelop(company.to_dict())
+        return record_json_envelop(adict)
     
 
 @api.route('/users', methods = ['GET'])
