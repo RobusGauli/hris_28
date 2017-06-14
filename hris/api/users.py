@@ -196,10 +196,7 @@ def add_company_detail():
     if extra_keys:
         return jsonify({'Message' : 'Extra keys : %r' % ', '.join(col for col in extra_keys)})
     try:
-        district = db_sesssion.query(District).filter(District.id == int(request.json['district'])).one()
-        request.json['district'] = district.display_name
-        request.json['province'] = district.province.display_name
-        request.json['region']= district.province.region.display_name
+        
         db_session.query(CompanyDetail).filter(CompanyDetail.id == 1).update(request.json)
         db_session.commit()
     except NoResultFound as e:
