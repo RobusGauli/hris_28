@@ -1,6 +1,7 @@
 from hris.utils import hash_password, gen_access_token, decode_access_token
 from flask import request, abort, jsonify, g, current_app
 from functools import wraps
+#this is me and that i need you
 
 from hris.api import api
 from sqlalchemy.exc import IntegrityError #foreign key violation #this won't come up oftern
