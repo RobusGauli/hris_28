@@ -310,7 +310,7 @@ def get_employees_by_category(c_id):
 def create_emp_position():
     if not request.json:
         abort(401)
-    required_fields = set(col.name for col in EmployeePosition.__mapper__.columns) - {'id', 'emp_pos_title_display_name'}
+    required_fields = set(col.name for col in EmployeePosition.__mapper__.columns) - {'id', 'emp_pos_title_display_name', 'del_flag'}
     
     extra_fields = set(request.json) - required_fields
     if extra_fields:

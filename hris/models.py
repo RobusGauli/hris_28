@@ -80,8 +80,8 @@ class Role(Base):
     __tablename__ = 'roles'
 
     id = Column(Integer, Sequence('rx_id'), primary_key=True)
-    role_type = Column(String(100), unique=True, nullable=False)
-    role_code = Column(String(20), unique=True, nullable=False)
+    role_type = Column(String(30), unique=True, nullable=False)
+    role_code = Column(String(10), unique=True, nullable=False)
     role_type_display_name = Column(String(200), nullable=False)
     activate = Column(Boolean, default=True)
     del_flag = Column(Boolean, default=False)
@@ -137,28 +137,28 @@ class CompanyDetail(Base):
     __tablename__ = 'companydetail'
 
     id = Column(Integer, Sequence('company_detail_id'), primary_key=True)
-    name = Column(String(100), unique=True, nullable=False)
-    display_name = Column(String(100), nullable=False)
+    name = Column(String(50), unique=True, nullable=False)
+    display_name = Column(String(50), nullable=False)
     company_code = Column(String(10), unique=True)
-    company_code_desc = Column(String(700))
+    company_code_desc = Column(String(100))
     address_one = Column(String(40))
     address_two = Column(String(40))
-    district = Column(String(100))
-    province = Column(String(100))
-    region = Column(String(100))
-    llg = Column(String(100))
-    village = Column(String(100))
+    district = Column(String(50))
+    province = Column(String(50))
+    region = Column(String(50))
+    llg = Column(String(50))
+    village = Column(String(50))
     web_address = Column(String(100))
-    email = Column(String(100))
-    contact_person_name = Column(String(100))
-    contact_person_email = Column(String(100))
-    contact_person_alt_email = Column(String(100))
-    free_text_one = Column(String(400))
-    free_text_two = Column(String(400))
-    free_text_three = Column(String(400))
-    free_text_four = Column(String(400))
-    free_text_five = Column(String(400))
-    description = Column(String(700))
+    email = Column(String(50))
+    contact_person_name = Column(String(50))
+    contact_person_email = Column(String(50))
+    contact_person_alt_email = Column(String(50))
+    free_text_one = Column(String(100))
+    free_text_two = Column(String(100))
+    free_text_three = Column(String(100))
+    free_text_four = Column(String(100))
+    free_text_five = Column(String(100))
+    description = Column(String(100))
     currency_symbol = Column(String(2), unique=True)
     is_prefix = Column(Boolean, default=False)
     country = Column(String(30), nullable=False)
@@ -229,7 +229,7 @@ class Agency(Base):
     con_person_name = Column(String(50))
     con_per_mob_num = Column(String(50))
     con_per_email = Column((String(50)))
-    description = Column(String(600))
+    description = Column(String(100))
     district_id = Column(Integer, ForeignKey('districts.id'))
     province_id = Column(Integer, ForeignKey('provinces.id'))
     region_id = Column(Integer, ForeignKey('regions.id'))
@@ -270,14 +270,14 @@ class Facility(Base):
     del_flag = Column(Boolean, default=False)
 
     facility_code = Column(String(10), unique=True)
-    facility_code_desc = Column(String(700))
+    facility_code_desc = Column(String(100))
     address_one = Column(String(40))
     address_two = Column(String(40))
     web_address = Column(String(100))
-    email = Column(String(100))
-    contact_person_name = Column(String(100))
-    contact_person_email = Column(String(100))
-    contact_person_alt_email = Column(String(100))
+    email = Column(String(50))
+    contact_person_name = Column(String(50))
+    contact_person_email = Column(String(50))
+    contact_person_alt_email = Column(String(50))
     #foreignt keys
     facility_type_id = Column(Integer, ForeignKey('facilitytypes.id'))
     llg_id = Column(Integer, ForeignKey('llg.id'))
@@ -321,8 +321,8 @@ class FacilityType(Base):
     __tablename__ = 'facilitytypes'
 
     id = Column(Integer, Sequence('facility_type_id'), primary_key=True)
-    name = Column(String(200), unique=True, nullable=False)
-    display_name = Column(String(200), nullable=False, unique=True)
+    name = Column(String(50), unique=True, nullable=False)
+    display_name = Column(String(50), nullable=False, unique=True)
     del_flag = Column(Boolean, default=False)
 
     facilities = relationship('Facility', back_populates='facility_type', cascade='all, delete, delete-orphan')
@@ -405,8 +405,8 @@ class DivisionPosition(Base):
     div_pos_name  = Column(String(20), unique=True, nullable=False)
     fac_div_id = Column(Integer, ForeignKey('facility_divisions.id'), nullable=False) #foreigne
     div_emp_id = Column(Integer, ForeignKey('employees.id'), unique=True, nullable=True) #foreign
-    position_title = Column(String(100))
-    description = Column(String(400))
+    position_title = Column(String(50))
+    description = Column(String(100))
     del_flag = Column(Boolean, default=False)
     #realtionship
     fac_div = relationship('FacilityDivision', back_populates='div_positions')
@@ -430,9 +430,9 @@ class LLG(Base):
     __tablename__ = 'llg'
 
     id = Column(Integer, Sequence('llg_id'),primary_key=True)
-    name = Column(String(100), unique=True, nullable=False)
+    name = Column(String(50), unique=True, nullable=False)
     llg_code = Column(String(3), unique=True, nullable=False)
-    display_name = Column(String(200), unique=True, nullable=False)
+    display_name = Column(String(50), unique=True, nullable=False)
     del_flag = Column(Boolean, default=False)
     facilities = relationship('Facility', back_populates='llg', cascade='all, delete, delete-orphan')
     district_id = Column(Integer, ForeignKey('districts.id'))
@@ -455,9 +455,9 @@ class District(Base):
     __tablename__ = 'districts'
     
     id = Column(Integer, Sequence('districts_id'), primary_key=True)
-    name = Column(String(100), unique=True, nullable=False)
+    name = Column(String(50), unique=True, nullable=False)
     district_code = Column(String(5), unique=True, nullable=False)
-    display_name = Column(String(200), unique=True, nullable=False)
+    display_name = Column(String(50), unique=True, nullable=False)
     del_flag = Column(Boolean, default=False)
 
     facilities = relationship('Facility', back_populates='district', cascade='all, delete, delete-orphan')
@@ -487,9 +487,9 @@ class Province(Base):
     __tablename__ = 'provinces'
     
     id = Column(Integer, Sequence('provinces_id'), primary_key=True)
-    name = Column(String(100), unique=True, nullable=False)
+    name = Column(String(50), unique=True, nullable=False)
     province_code = Column(String(5), unique=True, nullable=False)
-    display_name = Column(String(200), unique=True, nullable=False)
+    display_name = Column(String(50), unique=True, nullable=False)
     del_flag = Column(Boolean, default=False)
     facilities = relationship('Facility', back_populates='province', cascade='all, delete, delete-orphan')
 
@@ -517,9 +517,9 @@ class Region(Base):
     __tablename__ = 'regions'
 
     id = Column(Integer, Sequence('region_id'),primary_key=True)
-    name = Column(String(100), unique=True, nullable=False)
+    name = Column(String(50), unique=True, nullable=False)
     region_code = Column(String(5), unique=True, nullable=False)
-    display_name = Column(String(200), unique=True, nullable=False)
+    display_name = Column(String(50), unique=True, nullable=False)
     del_flag = Column(Boolean, default=False)
 
     facilities = relationship('Facility', back_populates='region', cascade='all, delete, delete-orphan')
@@ -538,8 +538,8 @@ class EmployeeCategoryRank(Base):
     __tablename__ = 'emp_cat_ranks'
 
     id = Column(Integer, Sequence('emp_cat_rank_id'), primary_key=True)
-    name = Column(String(100), nullable=False, unique=True)
-    display_name = Column(String(100), nullable=False, unique=True)
+    name = Column(String(50), nullable=False, unique=True)
+    display_name = Column(String(50), nullable=False, unique=True)
     activate = Column(Boolean, default=True)
     del_flag = Column(Boolean, default=False)
 
@@ -590,8 +590,8 @@ class EmployeeType(Base):
     __tablename__ = 'emp_types'
 
     id = Column(Integer, Sequence('emp_type_id'), primary_key=True)
-    name = Column(String(100), nullable=False, unique=True)
-    display_name = Column(String(100), nullable=False, unique=True)
+    name = Column(String(50), nullable=False, unique=True)
+    display_name = Column(String(50), nullable=False, unique=True)
     activate = Column(Boolean, default=True)
     del_flag = Column(Boolean, default=False)
     #relationship
@@ -616,13 +616,13 @@ class Employee(Base):
     date_of_birth = Column(Date, nullable=False)
     address_one = Column(String(50), nullable=False)
     address_two = Column(String(50))
-    village = Column(String(100))
-    llg = Column(String(100))
-    district = Column(String(100))
-    province = Column(String(100))
-    region = Column(String(100))
-    country = Column(String(40))
-    email_address = Column(String(100), unique=True)
+    village = Column(String(50))
+    llg = Column(String(50))
+    district = Column(String(50))
+    province = Column(String(50))
+    region = Column(String(50))
+    country = Column(String(50))
+    email_address = Column(String(50), unique=True)
     contact_number = Column(String(30), unique=True)
     alt_contact_number = Column(String(30), unique=True)
     age = Column(Integer, nullable=False)
@@ -643,8 +643,8 @@ class Employee(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     created_by = Column(String(50))
     updated_by = Column(String(50))
-    photo = Column(String(500), unique=True)
-    document = Column(String(500), unique=True)
+    photo = Column(String(300), unique=True)
+    document = Column(String(300), unique=True)
 
     under_ndoh = Column(Boolean, nullable=False, default=True)
     #branch_id_of_employee
@@ -716,8 +716,8 @@ class EmployeeRelativeType(Base):
     __tablename__ = 'emp_relative_types'
     
     id = Column(Integer, Sequence('emp_rel_id'), primary_key=True)
-    name = Column(String(100), nullable=False)
-    display_name = Column(String(100), nullable=False)
+    name = Column(String(50), nullable=False)
+    display_name = Column(String(50), nullable=False)
     code = Column(String(30))
     del_flag = Column(Boolean, default=False)
 
@@ -733,18 +733,18 @@ class EmployeeRelative(Base):
     __tablename__ = 'emp_relatives'
 
     id = Column(Integer, Sequence('emp_rel'), primary_key=True)
-    first_name = Column(String(100), nullable=False)
-    middle_name = Column(String(100))
-    last_name = Column(String(100))
-    address_one = Column(String(100))
-    address_two = Column(String(100))
-    country = Column(String(100))
+    first_name = Column(String(50), nullable=False)
+    middle_name = Column(String(50))
+    last_name = Column(String(50))
+    address_one = Column(String(50))
+    address_two = Column(String(50))
+    country = Column(String(50))
     contact_number = Column(String(20))
     email = Column(String(50))
     del_flag = Column(Boolean, default=False)
     approved = Column(Boolean, default=False)
     employee_id = Column(Integer, ForeignKey('employees.id'))
-    employee_type = Column(String(100))
+    employee_type = Column(String(50))
     employee = relationship('Employee', back_populates='relatives')
 
     _val_mapper = lambda self, val : val if val is not None else ''
@@ -757,9 +757,9 @@ class EmployementHistory(Base):
     id = Column(Integer, Sequence('emp_his_id'), primary_key=True)
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
-    position = Column(String(100))
-    reason_leaving = Column(String(100))
-    description = Column(String(600))
+    position = Column(String(50))
+    reason_leaving = Column(String(50))
+    description = Column(String(100))
     del_flag = Column(Boolean, default=False)
     approved = Column(Boolean, default=False)
     employee_id = Column(Integer, ForeignKey('employees.id'))
@@ -775,17 +775,17 @@ class EmployeeReference(Base):
     __tablename__ = 'emp_references'
 
     id = Column(Integer, Sequence('emp_ref_id'), primary_key=True)
-    first_name = Column(String(100), nullable=False)
-    middle_name = Column(String(100))
-    last_name = Column(String(100))
-    company = Column(String(100))
-    email = Column(String(100))
-    address_one = Column(String(100))
-    address_two = Column(String(100))
+    first_name = Column(String(50), nullable=False)
+    middle_name = Column(String(50))
+    last_name = Column(String(50))
+    company = Column(String(50))
+    email = Column(String(50))
+    address_one = Column(String(50))
+    address_two = Column(String(50))
     contact_number = Column(String(20))
-    country = Column(String(100))
+    country = Column(String(50))
     del_flag = Column(Boolean, default=False)
-    description = Column(String(600))
+    description = Column(String(100))
 
     approved = Column(Boolean, default=False)
     employee_id = Column(Integer, ForeignKey('employees.id'))
@@ -801,8 +801,8 @@ class EmployeeBenifitType(Base):
     __tablename__ = 'emp_benifit_types'
     
     id = Column(Integer, Sequence('emp_rel_id'), primary_key=True)
-    name = Column(String(100), nullable=False)
-    display_name = Column(String(100), nullable=False)
+    name = Column(String(50), nullable=False)
+    display_name = Column(String(50), nullable=False)
     code = Column(String(30))
     del_flag = Column(Boolean, default=False)
 
@@ -818,10 +818,10 @@ class EmployeeBenifit(Base):
     __tablename__ = 'emp_benifits'
 
     id = Column(Integer, Sequence('emp_ben_id'), primary_key=True)
-    benifit_type = Column(String(100), nullable=False)
+    benifit_type = Column(String(50), nullable=False)
     amount = Column(String(10))
     date = Column(DateTime)
-    comment = Column(String(800))
+    comment = Column(String(100))
     approved = Column(Boolean, default=False)
     employee_id = Column(Integer, ForeignKey('employees.id'))
     del_flag = Column(Boolean, default=False) 
@@ -835,8 +835,8 @@ class EmployeeDisciplinaryType(Base):
     __tablename__ = 'emp_disciplinary_types'
     
     id = Column(Integer, Sequence('emp_distype_id'), primary_key=True)
-    name = Column(String(100), nullable=False)
-    display_name = Column(String(100), nullable=False)
+    name = Column(String(50), nullable=False)
+    display_name = Column(String(50), nullable=False)
     code = Column(String(30))
     del_flag = Column(Boolean, default=False)
     
@@ -852,11 +852,11 @@ class EmployeeDisciplinary(Base):
     __tablename__ = 'emp_disciplinary'
     
     id = Column(Integer, Sequence('emp_dis_id'), primary_key=True)
-    disciplinary_type = Column(String(100), nullable=False)
+    disciplinary_type = Column(String(50), nullable=False)
     date = Column(DateTime)
-    department = Column(String(100))
-    warning = Column(String(100))
-    comment = Column(String(100))
+    department = Column(String(50))
+    warning = Column(String(50))
+    comment = Column(String(50))
     approved = Column(Boolean, default=False)
     del_flag = Column(Boolean, default=False)
     employee_id = Column(Integer, ForeignKey('employees.id'))
@@ -869,8 +869,8 @@ class EmployeeAppraisalType(Base):
     __tablename__ = 'emp_appraisal_types'
     
     id = Column(Integer, Sequence('emp_appraisaltype_id'), primary_key=True)
-    name = Column(String(100), nullable=False)
-    display_name = Column(String(100), nullable=False)
+    name = Column(String(50), nullable=False)
+    display_name = Column(String(50), nullable=False)
     code = Column(String(30))
     del_flag = Column(Boolean, default=False)
 
@@ -886,10 +886,10 @@ class EmployeeAppraisal(Base):
     __tablename__ = 'emp_appraisals'
     
     id = Column(Integer, Sequence('emp_appraisal_id'), primary_key=True)
-    appraisal_type = Column(String(100), nullable=False)
+    appraisal_type = Column(String(50), nullable=False)
     date = Column(DateTime)
-    department = Column(String(100))
-    comment = Column(String(100))
+    department = Column(String(50))
+    comment = Column(String(50))
     approved = Column(Boolean, default=False)
     del_flag = Column(Boolean, default=False)
     employee_id = Column(Integer, ForeignKey('employees.id'))
@@ -904,7 +904,7 @@ class Qualification(Base):
 
     id = Column(Integer, Sequence('qual_id'), primary_key=True)
     name = Column(String(60))
-    institute_name = Column(String(100))
+    institute_name = Column(String(50))
     city = Column(String(30))
     state = Column(String(30))
     province = Column(String(30))
@@ -943,9 +943,9 @@ class Training(Base):
     __tablename__ = 'trainings'
 
     id = Column(Integer, Sequence('t_id'), primary_key=True)
-    name = Column(String(200), nullable=False)
-    organiser_name = Column(String(200))
-    funding_source = Column(String(200))
+    name = Column(String(50), nullable=False)
+    organiser_name = Column(String(50))
+    funding_source = Column(String(50))
     duration = Column(String(30))
     institue = Column(String(50))
     

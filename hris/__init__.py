@@ -19,7 +19,7 @@ from config import config
 
 #flask extension
 #start the engine
-engine = create_engine('postgres://user:postgres@localhost:5432/euclidone')
+engine = create_engine('postgres://user:postgres@localhost:5432/euclidthree')
 #engine = create_engine('oracle+cx_oracle://euclid:euclid@127.0.0.1/XE')
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
