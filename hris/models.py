@@ -1102,6 +1102,7 @@ class EmployeeLanguage(Base):
 
     def to_dict(self):
         return {
+            'id' : self.id,
             'ability' : self.ability if self.ability else '',
             'employee' : self.employee.first_name + ' ' + self.employee.last_name,
             'language' : self.language.name if self.language else ''
