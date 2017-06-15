@@ -33,7 +33,9 @@ from hris.models import (
     EmployeeDisciplinaryType,
     EmployeeDisciplinary,
     EmployeeAppraisalType,
-    EmployeeAppraisal
+    EmployeeAppraisal,
+    EmployeeStatus,
+    EmployeeAddress
 )
 
 
@@ -652,4 +654,83 @@ def update_emp_appraisal(e_id, b_id):
     else:
         return record_updated_envelop(request.json)
 
+@api.route('/employees/<int:e_id>/employeeaddresses', methods=['POST'])
+def create_employee_addresses(e_id):
+    if not request.json:
+        abort(400)
+    if not all(len(val.strip()) >= 1 for val in request.json.values() 
+                                    if isinstance(val, unicode)):
+        return length_require_envelop()
+    
+    request.json['employee_id'] = e_id
+    try:
+        db_session.add(EmployeeAddress(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
 
+@api.route('/employees/<int:e_id>/employeeaddresses', methods=['GET'])
+def get_emloyee_addresses(e_id):
+    try:
+        addresses = db_session.query(EmployeeAddress).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop([
+            a.to_dict() for a in addresses
+        ])
+
+@api.route('/employeestatus', methods=['POST'])
+def create_employee_status():
+    if not request.json:
+        abort(400)
+    
+    if not all(len(val.strip()) >= 1 for val in request.json.values()
+                                    if isinstance(val, unicode)):
+        return length_require_envelop()
+    
+    try:
+        db_session.add(EmployeeStatus(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/employeestatus', methods=['GET'])
+def get_employee_status():
+    try:
+        statuses = db_session.query(EmployeeStatus).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop([
+            status.to_dict() for status in statuses
+        ])
+
+@api.route('/employeestatus/<int:id>', methods=['PUT'])
+def update_employee_status(id):
+    if not request.json:
+        abort(400)
+    
+    try:
+        db_session.query(EmployeeStatus).filter(EmployeeStatus.id == id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
+        

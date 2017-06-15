@@ -293,6 +293,11 @@ class Facility(Base):
     province = relationship('Province', back_populates='facilities')
     region = relationship('Region', back_populates='facilities')
 
+    gps_degree = Column(String(8))
+    gps_minute = Column(String(8))
+    gps_seconds = Column(String(8))
+    gps_decimal_seconds = Column(String(8))
+
     #realiationhsip
     
     fac_divisions = relationship('FacilityDivision', back_populates = 'facility', cascade='all, delete, delete-orphan')
@@ -597,6 +602,20 @@ class EmployeeType(Base):
     #relationship
     employees = relationship('Employee', back_populates='employee_type', cascade='all, delete, delete-orphan')
 
+class EmployeeStatus(Base):
+    __tablename__ = 'employeestatus'
+
+    id = Column(Integer, Sequence('employeestatus_id'), primary_key=True)
+    name = Column(String(30), nullable=False, unique=True)
+    status_code = Column(String(3), unique=True, nullable=False)
+    del_flag = Column(Boolean, default=False)
+
+    _val_mapper = lambda self, item : item if item else ''
+    to_dict = lambda self: {key: self._val_mapper(val) for key, val in vars(self).items()
+                                                if not key.startswith('_')}
+
+    employees = relationship('Employee', back_populates='employee_status', cascade='all, delete, delete-orphan')
+
 class SalaryStep(Base):
     __tablename__ = 'salarysteps'
 
@@ -612,7 +631,13 @@ class Employee(Base):
     first_name = Column(String(40), nullable=False)
     middle_name = Column(String(40))
     last_name = Column(String(40), nullable=False)
-    sex = Column(Enum('M', 'F', 'O', name='sex'), nullable=False)
+    
+    maiden_name  = Column(String(40))
+    other_name_one = Column(String(40))
+    other_name_two = Column(String(40))
+    other_name_three = Column(String(40))
+    sex_at_birth = Column(Enum('M', 'F', 'O', name='birthsex'))
+    current_sex = Column(Enum('M', 'F', 'O', name='sex'), nullable=False)
     date_of_birth = Column(Date, nullable=False)
     address_one = Column(String(50), nullable=False)
     address_two = Column(String(50))
@@ -654,6 +679,7 @@ class Employee(Base):
     employee_type_id = Column(Integer, ForeignKey('emp_types.id'), nullable=False)
     employee_category_id = Column(Integer, ForeignKey('emp_categories.id'), nullable=False)
     employee_position_id = Column(Integer, ForeignKey('employeespositions.id'), nullable=False)
+    employee_status_id  = Column(Integer, ForeignKey('employeestatus.id'), nullable=False)
     #one to one with users table
     user_id = Column(Integer, ForeignKey('users.id'), unique=True)
     user = relationship('User', back_populates='employee')
@@ -661,12 +687,15 @@ class Employee(Base):
     #one to one with employeeextra table
     employee_extra = relationship('EmployeeExtra', uselist=False, back_populates='employee')
     div_position = relationship('DivisionPosition', uselist=False, back_populates='div_emp')
+    employee_address = relationship('EmployeeAddress', uselist=False, back_populates='employee')
 
     #relationship 
     employee_type = relationship('EmployeeType', back_populates='employees')
     employee_category = relationship('EmployeeCategory', back_populates='employees')
     employee_position = relationship('EmployeePosition', back_populates='employees')
     employee_agency = relationship('Agency', back_populates='employees')
+    employee_status = relationship('EmployeeStatus', back_populates='employees')
+
     #other relationship
     qualifications = relationship('Qualification', back_populates='employee', cascade='all, delete, delete-orphan')
     certifications = relationship('Certification', back_populates='employee', cascade='all, delete, delete-orphan')
@@ -677,6 +706,8 @@ class Employee(Base):
     emp_benifits = relationship('EmployeeBenifit', back_populates='employee', cascade='all, delete, delete-orphan')
     emp_disciplinaries = relationship('EmployeeDisciplinary', back_populates='employee', cascade='all, delete, delete-orphan')
     emp_appraisals = relationship('EmployeeAppraisal', back_populates='employee', cascade='all, delete, delete-orphan')
+    employee_educations = relationship('EmployeeEducation', back_populates='employee', cascade='all, delete, delete-orphan')
+    employee_languages = relationship('EmployeeLanguage', back_populates='employee', cascade='all, delete, delete-orphan')
     
     def to_dict(self):
         data = {
@@ -854,9 +885,7 @@ class EmployeeDisciplinary(Base):
     id = Column(Integer, Sequence('emp_dis_id'), primary_key=True)
     disciplinary_type = Column(String(50), nullable=False)
     date = Column(DateTime)
-    department = Column(String(50))
-    warning = Column(String(50))
-    comment = Column(String(50))
+    description = Column(String(200))
     approved = Column(Boolean, default=False)
     del_flag = Column(Boolean, default=False)
     employee_id = Column(Integer, ForeignKey('employees.id'))
@@ -865,6 +894,7 @@ class EmployeeDisciplinary(Base):
     _val_mapper = lambda self, item : item if item is not None else ''
     to_dict = lambda self : {key : self._val_mapper(val) for key, val in vars(self).items()
                             if not str(key).startswith('_')}
+
 class EmployeeAppraisalType(Base):
     __tablename__ = 'emp_appraisal_types'
     
@@ -986,3 +1016,78 @@ class PasswordPolicy(Base):
 
 
 
+
+class EmployeeAddress(Base):
+    __tablename__ = 'employeeaddresses'
+
+    id = Column(Integer, Sequence('emp_address_id'), primary_key=True)
+    perm_street_addr = Column(String(32))
+    perm_city_town = Column(String(32))
+    perm_postal_code = Column(String(32))
+    perm_country_code = Column(String(32))
+
+    business_street_addr = Column(String(32))
+    business_city_town = Column(String(32))
+    business_postal_code = Column(String(32))
+    business_country_code = Column(String(32))
+    
+    residential_street_addr = Column(String(32))
+    residential_city_addr = Column(String(32))
+    residential_postal_code = Column(String(32))
+    residential_county_code = Column(String(32))
+
+    professional_email_address = Column(String(50))
+    personal_email_address = Column(String(50))
+
+    country_birth = Column(String(20))
+    country_citizenship_at_birth = Column(String(20))
+    country_present_citizenship = Column(String(20))
+    multiple_citizenship = Column(Boolean, default=False)
+    country_second_citizenship = Column(String(20))
+
+    employee_id = Column(Integer, ForeignKey('employees.id'), unique=True, nullable=False)
+    employee = relationship('Employee', back_populates='employee_address')
+
+    _val_mapper = lambda self, item : item if item else ''
+    to_dict = lambda self: {
+        key: self._val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')
+    }
+
+
+class EmployeeEducation(Base):
+    __tablename__ = 'employeeeducations'
+
+    id = Column(Integer, Sequence('emplpoyeeeducation_id'), primary_key=True)
+
+    institute_name = Column(String(50))
+    country = Column(String(20))
+    city_town = Column(String(20))
+    degree = Column(String(50))
+    certificate = Column(String(50))
+    start_date = Column(DateTime)
+    end_date = Column(DateTime)
+    major_study = Column(String(50))
+    minor_study = Column(String(50))
+
+    employee_id = Column(Integer, ForeignKey('employees.id'), nullable=False)
+    employee = relationship('Employee', back_populates='employee_educations')
+
+
+class Language(Base):
+    __tablename__ = 'languages'
+
+    id = Column(Integer, Sequence('language_id'), primary_key=True)
+    name = Column(String(50), unique=True, nullable=False)
+
+    employee_languages = relationship('EmployeeLanguage', back_populates='language', cascade='all, delete, delete-orphan')
+
+class EmployeeLanguage(Base):
+    __tablename__ = 'employeelanguages'
+
+    id = Column(Integer, Sequence('emplang_id'), primary_key=True)
+    ability = Column(Enum('READ', 'WRITE', 'SPEAK',  name='langability'))
+    language_id  = Column(Integer, ForeignKey('languages.id'), nullable=False)
+    employee_id = Column(Integer, ForeignKey('employees.id'), nullable=False)
+
+    employee = relationship('Employee', back_populates='employee_languages')
+    language = relationship('Language', back_populates= 'employee_languages')
