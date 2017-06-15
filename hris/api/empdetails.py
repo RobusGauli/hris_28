@@ -780,7 +780,7 @@ def get_employee_educations(id):
     except Exception:
         return fatal_error_envelop()
     else:
-        return json_records_envelop([
+        return records_json_envelop([
             e.to_dict() for e in educations
         ])
 
