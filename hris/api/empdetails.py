@@ -674,7 +674,7 @@ def create_employee_addresses(e_id):
         return record_created_envelop(request.json)
 
 @api.route('/employees/<int:e_id>/employeeaddresses', methods=['GET'])
-def get_emloyee_addresses(e_id):
+def get_employee_addresses(e_id):
     try:
         addresses = db_session.query(EmployeeAddress).all()
     except NoResultFound:
@@ -685,6 +685,21 @@ def get_emloyee_addresses(e_id):
         return records_json_envelop([
             a.to_dict() for a in addresses
         ])
+
+@api.route('/employees/<int:e_id>/employeeaddresses/<int:a_id>', methods=['PUT'])
+def update_employee_addresses(e_id, a_id):
+    if not request.json:
+        abort(400)
+    
+    try:
+        db_session.query(EmployeeAddress).filter(EmployeeAddress.id == a_id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return records_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
 
 @api.route('/employeestatus', methods=['POST'])
 def create_employee_status():
