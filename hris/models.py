@@ -1085,6 +1085,10 @@ class Language(Base):
 
     employee_languages = relationship('EmployeeLanguage', back_populates='language', cascade='all, delete, delete-orphan')
 
+    _val_mapper = lambda self, item: item if item else ''
+    to_dict = lambda self: {key: self._val_mapper(val) for key, val in vars(self).items()
+                                                                if not key.startswith('_')}
+
 class EmployeeLanguage(Base):
     __tablename__ = 'employeelanguages'
 
@@ -1095,3 +1099,10 @@ class EmployeeLanguage(Base):
 
     employee = relationship('Employee', back_populates='employee_languages')
     language = relationship('Language', back_populates= 'employee_languages')
+
+    def to_dict(self):
+        return {
+            'ability' : self.ability if self.ability else '',
+            'employee' : self.employee.first_name + ' ' + self.employee.last_name,
+            'language' : self.language.name if self.language else ''
+        }

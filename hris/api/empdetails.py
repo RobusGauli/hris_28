@@ -36,7 +36,9 @@ from hris.models import (
     EmployeeAppraisal,
     EmployeeStatus,
     EmployeeAddress,
-    EmployeeEducation
+    EmployeeEducation,
+    Language,
+    EmployeeLanguage
 )
 
 
@@ -797,4 +799,85 @@ def update_employee_education(e_id, id):
         return fatal_error_envelop()
     else:
         return record_updated_envelop(request.json)
+
+
+@api.route('/language', methods=['POST'])
+def create_langauge():
+    if not request.json:
+        abort(400)
+    if not all(len(val.strip()) >= 1 for val in request.json.values()
+                                        if isinstance(val, unicode)):
+        return length_require_envelop()
     
+    try:
+        db_session.add(Language(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/language', methods=['GET'])
+def get_languages():
+    try:
+        langs = db_session.query(Language).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop([
+            l.to_dict() for l in langs
+        ])
+
+@api.route('/language/<int:id>', methods=['PUT'])
+def update_language(id):
+    if not request.json:
+        abort(400)
+    
+    try:
+        db_session.query(Language).filter(Language.id == id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
+
+@api.route('/employees/<int:id>/language', methods=['POST'])
+def create_employee_lang(id):
+    if not request.json:
+        abort(400)
+    if not all(len(val.strip()) >= 1 for val in request.json.values() 
+                                                if isinstance(val, unicode)):
+        return length_require_envelop()
+    
+    request.json['employee_id'] = id
+    try:
+        db_session.add(EmployeeLanguage(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+
+@api.route('/employees/<int:id>/language', methods=['GET'])
+def get_langs_by_employee(id):
+    try:
+        langs = db_session.query(EmployeeLanguage).\
+                            filter(EmployeeLanguage.employee_id == id).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop([
+            l.to_dict() for l in langs
+        ])
