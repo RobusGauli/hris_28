@@ -198,6 +198,7 @@ def get_employee(id):
         return record_json_envelop({ 'first_name' : emp.first_name if emp.first_name else '',
                   'middle_name' : emp.middle_name if emp.middle_name else '',
                   'last_name' : emp.last_name if emp.last_name else '',
+                  ##this is asdas
                   'sex' : emp.current_sex if emp.current_sex else '',
                   'date_of_birth' : str(emp.date_of_birth) if emp.date_of_birth else '',
                   'address_one' : emp.address_one if emp.address_one else '',
