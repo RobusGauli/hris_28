@@ -35,7 +35,8 @@ from hris.models import (
     EmployeeAppraisalType,
     EmployeeAppraisal,
     EmployeeStatus,
-    EmployeeAddress
+    EmployeeAddress,
+    EmployeeEducation
 )
 
 
@@ -676,7 +677,7 @@ def create_employee_addresses(e_id):
 @api.route('/employees/<int:e_id>/employeeaddresses', methods=['GET'])
 def get_employee_addresses(e_id):
     try:
-        addresses = db_session.query(EmployeeAddress).all()
+        addresses = db_session.query(EmployeeAddress).filter(EmployeeAddress.employee_id == e_id).all()
     except NoResultFound:
         return record_notfound_envelop()
     except Exception:
@@ -749,3 +750,51 @@ def update_employee_status(id):
         return record_updated_envelop(request.json)
 
         
+@api.route('/employees/<int:id>/empeducations', methods=['POST'])
+def create_employee_educations(id):
+    if not request.json:
+        abort(400)
+    
+    if not all(len(val.strip()) >= 1 for val in request.json.values()
+                                if isinstance(val, unicode)):
+        return length_require_envelop()
+    
+    request.json['employee_id'] = id
+    try:
+        db_session.add(EmployeeEducation(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+
+@api.route('/employees/<int:id>/empeducations', methods=['GET'])
+def get_employee_educations(id):
+    try:
+        educations = db_session.query(EmployeeEducation).filter(EmployeeEducation.employee_id == id).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return json_records_envelop([
+            e.to_dict() for e in educations
+        ])
+
+@api.route('/employees/<int:e_id>/empeducations/<int:id>', methods=['PUT'])
+def update_employee_education(e_id, id):
+    if not request.json:
+        abort(400)
+    try:
+        db_session.query(EmployeeEducation).filter(EmployeeEducation.employee_id == e_id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+    
