@@ -1072,6 +1072,10 @@ class EmployeeEducation(Base):
     employee_id = Column(Integer, ForeignKey('employees.id'), nullable=False)
     employee = relationship('Employee', back_populates='employee_educations')
 
+    _val_mapper = lambda self, item : item if item else ''
+    to_dict = lambda self: {key : self._val_mapper(val) for key, val in vars(self)
+                                                if not key.startswith('_')}
+
 
 class Language(Base):
     __tablename__ = 'languages'
