@@ -15,7 +15,8 @@ from hris.models import (
     User, 
     CompanyDetail,
     Employee,
-    PasswordPolicy
+    PasswordPolicy,
+    District
 )
 
 
@@ -258,6 +259,7 @@ def get_company_detail():
     except NoResultFound as e:
         return record_notfound_envelop()
     except Exception as e:
+        
         return fatal_error_envelop()
     else:
         return record_json_envelop(adict)

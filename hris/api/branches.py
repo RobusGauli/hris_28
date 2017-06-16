@@ -411,9 +411,7 @@ def update_facilities_by_factype(ft_id, f_id):
         abort(400)
     
     #check to see if there is any empty fields
-    if not all(len(val.strip()) >= 1 for key, val in request.json.items()
-                                                if isinstance(val, str)):
-        return length_require_envelop()
+   
     
     if 'facility_name' in request.json:
         request.json['facility_display_name'] = request.json['facility_name'].strip()
