@@ -679,15 +679,13 @@ def create_employee_addresses(e_id):
 @api.route('/employees/<int:e_id>/employeeaddresses', methods=['GET'])
 def get_employee_addresses(e_id):
     try:
-        addresses = db_session.query(EmployeeAddress).filter(EmployeeAddress.employee_id == e_id).all()
+        addresses = db_session.query(EmployeeAddress).filter(EmployeeAddress.employee_id == e_id).one()
     except NoResultFound:
         return record_notfound_envelop()
     except Exception:
         return fatal_error_envelop()
     else:
-        return records_json_envelop([
-            a.to_dict() for a in addresses
-        ])
+        return record_json_envelop(addresses.to_dict())
 
 @api.route('/employees/<int:e_id>/employeeaddresses/<int:id>', methods=['GET'])
 def get_employee_address(e_id, id):
