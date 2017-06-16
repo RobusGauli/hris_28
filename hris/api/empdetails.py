@@ -689,6 +689,17 @@ def get_employee_addresses(e_id):
             a.to_dict() for a in addresses
         ])
 
+@api.route('/employees/<int:e_id>/employeeaddresses/<int:id>', methods=['GET'])
+def get_employee_address(e_id, id):
+    try:
+        addresses = db_session.query(EmployeeAddress).filter(EmployeeAddress.id == id).one()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_json_envelop(addresses.to_dict())
+
 @api.route('/employees/<int:e_id>/employeeaddresses/<int:a_id>', methods=['PUT'])
 def update_employee_addresses(e_id, a_id):
     if not request.json:
