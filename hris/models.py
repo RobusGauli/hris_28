@@ -1034,7 +1034,7 @@ class EmployeeAddress(Base):
     residential_street_addr = Column(String(32))
     residential_city_addr = Column(String(32))
     residential_postal_code = Column(String(32))
-    residential_county_code = Column(String(32))
+    residential_country_code = Column(String(32))
 
     professional_email_address = Column(String(50))
     personal_email_address = Column(String(50))
