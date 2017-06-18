@@ -890,3 +890,20 @@ def get_langs_by_employee(id):
         return records_json_envelop([
             l.to_dict() for l in langs
         ])
+
+
+@api.route('/employees/<int:id>/language/<int:l_id>', methods=['PUT'])
+def update_lang_by_emp(id, l_id):
+    if not request.json:
+        abort(400)
+    
+    try:
+        db_session.query(EmployeeLanguage).filter(EmployeeLanguage.id == l_id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+        
