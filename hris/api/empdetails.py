@@ -880,8 +880,7 @@ def create_employee_lang(id):
 @api.route('/employees/<int:id>/language', methods=['GET'])
 def get_langs_by_employee(id):
     try:
-        langs = db_session.query(EmployeeLanguage).
-                            filter(EmployeeLanguage.employee_id == id).all()
+        langs = db_session.query(EmployeeLanguage).filter(EmployeeLanguage.employee_id == id).all()
     except NoResultFound:
         return record_notfound_envelop()
     except Exception:
