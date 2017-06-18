@@ -1105,5 +1105,7 @@ class EmployeeLanguage(Base):
             'id' : self.id,
             'ability' : self.ability if self.ability else '',
             'employee' : self.employee.first_name + ' ' + self.employee.last_name,
-            'language' : self.language.name if self.language else ''
+            'language' : self.language.name if self.language else '',
+            'language_id' : self.language_id if self.language_id else '',
+            'employee_id' : self.employee_id if self.employee_id else ''
         }
