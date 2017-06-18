@@ -766,9 +766,9 @@ def create_employee_educations(id):
     if not request.json:
         abort(400)
     
-    if not all(len(val.strip()) >= 1 for val in request.json.values()
-                                if isinstance(val, unicode)):
-        return length_require_envelop()
+    # if not all(len(val.strip()) >= 1 for val in request.json.values()
+    #                             if isinstance(val, unicode)):
+    #     return length_require_envelop()
     
     request.json['employee_id'] = id
     try:
@@ -880,7 +880,7 @@ def create_employee_lang(id):
 @api.route('/employees/<int:id>/language', methods=['GET'])
 def get_langs_by_employee(id):
     try:
-        langs = db_session.query(EmployeeLanguage).\
+        langs = db_session.query(EmployeeLanguage).
                             filter(EmployeeLanguage.employee_id == id).all()
     except NoResultFound:
         return record_notfound_envelop()
@@ -906,4 +906,3 @@ def update_lang_by_emp(id, l_id):
         return fatal_error_envelop()
     else:
         return record_updated_envelop(request.json)
-        
