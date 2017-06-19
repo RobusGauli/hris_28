@@ -231,7 +231,11 @@ def get_employee(id):
                   'employee_type_id' : emp.employee_type_id if emp.employee_type_id else '',
                   'employee_position_id' : emp.employee_position_id if emp.employee_position_id else '',
                   'employee_category_id' : emp.employee_category_id if emp.employee_category_id else '',
-                  'salutation' : emp.salutation if emp.salutation else ''
+                  'salutation' : emp.salutation if emp.salutation else '',
+                  'other_name_one' : emp.other_name_one if emp.other_name_one else '',
+                  'other_name_two' : emp.other_name_two if emp.other_name_two else '',
+                  'other_name_three' : emp.other_name_three if emp.other_name_three else '',
+                  'maiden_name' : emp.maiden_name if emp.maiden_name else ''
 
         })
 
