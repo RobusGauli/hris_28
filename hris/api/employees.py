@@ -151,7 +151,7 @@ def get_employees():
         emps = ({ 'first_name' : emp.first_name if emp.first_name else '',
                   'middle_name' : emp.middle_name if emp.middle_name else '',
                   'last_name' : emp.last_name if emp.last_name else '',
-                  'sex' : emp.current_sex if emp.current_sex else '',
+                  'current_sex' : emp.current_sex if emp.current_sex else '',
                   'date_of_birth' : str(emp.date_of_birth) if emp.date_of_birth else '',
                   'address_one' : emp.address_one if emp.address_one else '',
                   'address_two' : emp.address_two if emp.address_two else '',
@@ -175,7 +175,8 @@ def get_employees():
                   'employee_agency_id' : emp.employee_agency_id if emp.employee_agency_id else '',
                   'role_id' : emp.user.role_id if emp.user else '',
                   'salutation' : emp.salutation if emp.salutation else '',
-                  'fullname' : emp.first_name + ' ' + emp.last_name
+                  'fullname' : emp.first_name + ' ' + emp.last_name,
+                  'sex_at_birth' : emp.sex_at_birth if emp.sex_at_birth else ''
                                     
 
         } for emp in employees)

@@ -719,7 +719,9 @@ class Employee(Base):
             'contact_number' : self.contact_number if self.contact_number else '',
             'country' : self.country if self.country else '',
             'id' : self.id if self.id else '',
-            'fullname' : self.first_name + ' ' + self.last_name
+            'fullname' : self.first_name + ' ' + self.last_name,
+            'current_sex' : self.current_sex if self.current_sex else '',
+            'sex_at_birth' : self.sex_at_birth if self.sex_at_birth else ''
         }
         return data
     adict = lambda self : vars(self)
