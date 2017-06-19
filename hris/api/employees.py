@@ -200,7 +200,7 @@ def get_employee(id):
                   'middle_name' : emp.middle_name if emp.middle_name else '',
                   'last_name' : emp.last_name if emp.last_name else '',
                   ##this is asdas
-                  'sex' : emp.current_sex if emp.current_sex else '',
+                  'current_sex' : emp.current_sex if emp.current_sex else '',
                   'date_of_birth' : str(emp.date_of_birth) if emp.date_of_birth else '',
                   'address_one' : emp.address_one if emp.address_one else '',
                   'address_two' : emp.address_two if emp.address_two else '',
@@ -221,6 +221,7 @@ def get_employee(id):
                   'contract_end_date' : emp.contract_end_date if emp.contract_end_date else '',
                   'id' : emp.id if emp.id else '',
                   'user_id' : emp.user_id if emp.user_id else '',
+                  'sex_at_birth' : emp.sex_at_birth if emp.sex_at_birth else '',
                   
                   
                   'employee_type' : emp.employee_type.display_name if emp.employee_type.display_name else '',
