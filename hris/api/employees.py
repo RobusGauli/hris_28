@@ -57,7 +57,7 @@ def create_employee():
     
     req_fields = {'first_name',
                   'last_name', 
-                  'sex', 
+                  'current_sex', 
                   'address_one', 
                   'age', 
                   'retirement_age', 
@@ -65,7 +65,6 @@ def create_employee():
                   'employee_category_id',
                   'date_of_birth',
                   'employee_position_id',
-                  
                   'employement_number',
                   'employee_agency_id'}
     result = req_fields  - set(request.json.keys())
