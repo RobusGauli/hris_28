@@ -298,34 +298,16 @@ def get_qualifications_by_emp(id):
 def update_qualification_by_emp(emp_id, q_id):
     if not request.json:
         abort(400)
-    #check to see if there is any empty values
-    if not all(len(str(val).strip()) for val in request.json.values()):
-        abort(411)
-    #check to see if the request has the right type of keys
-    result = request.json.keys() - set(col.name for col in Qualification.__mapper__.columns)
-    if result:
+    try:
+        db_session.query(Qualification).filter(Qualification.id == q_id).update(request.json)
+        eb_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
         
-        return extra_keys_envelop('Keys: {!r} not accepted'.format(', '.join(r for r in result)))
-    
-    #clearn up the values for string
-    #generator expression
-    cleaned_json = ((key, val.strip()) if isinstance(val, str) else (key, val) for key, val in request.json.items())
-        #this means that it has extra set of keys that is not necessary
-    #make the custom query
-    inner = ', '.join('{:s} = {!r}'.format(key, val) for key, val in cleaned_json)
-    query = '''UPDATE qualifications SET {:s} WHERE id = {:d}'''.format(inner, q_id)
-    
-
-    #try to executre
-    with engine.connect() as con:
-        try:
-            con.execute(query)
-        except IntegrityError as e:
-            return record_exists_envelop()
-        except Exception as e:
-            return fatal_error_envelop()
-        else:
-            return record_updated_envelop(request.json)
 
 ############@@@@############
 
