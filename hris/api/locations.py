@@ -64,9 +64,7 @@ def delete_facility_type(f_id):
 def create_district():
     if not set(request.json.keys()) == {'name', 'district_code', 'province_id'}:
         return jsonify({'message' : 'missing keys'})
-    
-    if not len(request.json['name']) > 3:
-        return jsonify({'message' : 'not adequate lenght'})
+
     
     #lower case the facility name
     display_name = request.json['name'].strip()
@@ -121,8 +119,7 @@ def create_province():
     if not set(request.json.keys()) == {'name', 'province_code', 'region_id'}:
         return jsonify({'message' : 'missing keys'})
     
-    if not len(request.json['name']) > 3:
-        return jsonify({'message' : 'not adequate length'})
+   
     
     #lower case the facility name
     display_name = request.json['name'].strip()
@@ -152,8 +149,7 @@ def create_province():
 def create_region():
     if not request.json:
         abort(400)
-    if not all(len(val.strip()) >= 1 for val in request.json.values() if isinstance(val, str)):
-        abort(404)
+    
     
     if 'name' in request.json:
         request.json['display_name'] = request.json['name'].strip()

@@ -800,7 +800,7 @@ def update_employee_education(e_id, id):
     if not request.json:
         abort(400)
     try:
-        db_session.query(EmployeeEducation).filter(EmployeeEducation.employee_id == e_id).update(request.json)
+        db_session.query(EmployeeEducation).filter(EmployeeEducation.id == id).update(request.json)
         db_session.commit()
     except IntegrityError:
         return record_exists_envelop()
