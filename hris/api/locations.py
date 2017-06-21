@@ -116,6 +116,8 @@ def create_llg():
 @api.route('/provinces', methods=['POST'])
 @create_update_permission('company_management_perm')
 def create_province():
+    if not request.json:
+        abort(400)
     if not set(request.json.keys()) == {'name', 'province_code', 'region_id'}:
         return jsonify({'message' : 'missing keys'})
     
