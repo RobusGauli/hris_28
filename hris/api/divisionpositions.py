@@ -41,7 +41,8 @@ from hris.models import (
     DivisionTypeSetup,
     Division,
     FacilityDivision,
-    DivisionPosition
+    DivisionPosition,
+    DivisionPositionMeta
 )
 
 
@@ -136,3 +137,44 @@ def get_divpositions_by_facdiv(f_id):
         return fatal_error_envelop()
     else:
         return records_json_envelop(list(dv.to_dict() for dv in dvs))
+
+
+@api.route('/divposmeta', methods=['POST'])
+def create_division_positions_by_meta():
+    if not request.json:
+        abort(400)
+    
+    _required_fields ['fac_div_id', 'position_title', 'position_capacity']
+    if all((item in request.json.keys()) for item in _required_fields):
+        return keys_require_envelop()
+
+    position_capacity = request.json['position_capacity']
+    position_title = request.json['position_title']
+    fac_div_id = int(request.json['fac_div_id'])
+    try:
+        divposmeta = DivisionPositionMeta(**request.json)
+        db_session.add(divposmeta)
+        #now get the total present count of the table
+        c = db_session.filter(DivisionPositionMeta).count() + 1
+        #for the capacity , addd the new divisionposition
+        for i in range(capacity):
+            db_session.add(DivisionPosition(
+                fac_div_id=fac_div_id,
+                position_title=position_title,
+                div_pos_code =''.join([str(fac_div_id), position_title, str(c)]),
+                div_pos_name =''.join([str(fac_div_id), position_title, str(c)])
+
+            ))
+            
+            #now increa the value of c
+            c += 1
+        db_session.commit()
+    except IntegrityError:
+        raise
+    except Exception:
+        raise
+    else:
+        return record_created_envelop()
+    
+
+

@@ -430,6 +430,14 @@ class DivisionPosition(Base):
         return '<Division Position Code : %s Id : %s >' % (self.div_pos_code, self.id)
 
 
+class DivisionPositionMeta(Base):
+    __tablename__ = 'divposmeta'
+
+    id = Column(Integer, Sequence('meta_id'), primary_key=True)
+    fac_div_id = Column(Integer, ForeignKey('facility_divisions.id'), nullable=False)
+    position_title = Column(String(50), unique=True, nullable=False)
+    position_capacity = Column(Integer, nullable=False)
+    occupied_position = Column(Integer)
 
 class LLG(Base):
     __tablename__ = 'llg'
