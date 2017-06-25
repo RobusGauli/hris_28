@@ -439,6 +439,11 @@ class DivisionPositionMeta(Base):
     position_capacity = Column(Integer, nullable=False)
     occupied_position = Column(Integer)
 
+    _val_mapper = lambda self, item : item if item else ''
+    to_dict = lambda self: {key: self._val_mapper(val) for key, val in 
+                                         vars(self).items() if not key.startswith('_')}
+                                
+
 class LLG(Base):
     __tablename__ = 'llg'
 

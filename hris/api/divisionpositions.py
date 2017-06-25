@@ -144,20 +144,20 @@ def create_division_positions_by_meta():
     if not request.json:
         abort(400)
     
-    _required_fields ['fac_div_id', 'position_title', 'position_capacity']
-    if all((item in request.json.keys()) for item in _required_fields):
+    _required_fields  = ['fac_div_id', 'position_title', 'position_capacity']
+    if not any((item in request.json.keys()) for item in _required_fields):
         return keys_require_envelop()
 
-    position_capacity = request.json['position_capacity']
+    position_capacity = int(request.json['position_capacity'])
     position_title = request.json['position_title']
     fac_div_id = int(request.json['fac_div_id'])
     try:
         divposmeta = DivisionPositionMeta(**request.json)
         db_session.add(divposmeta)
         #now get the total present count of the table
-        c = db_session.filter(DivisionPositionMeta).count() + 1
+        c = db_session.query(DivisionPositionMeta).count() + 1
         #for the capacity , addd the new divisionposition
-        for i in range(capacity):
+        for i in range(position_capacity):
             db_session.add(DivisionPosition(
                 fac_div_id=fac_div_id,
                 position_title=position_title,
@@ -174,7 +174,30 @@ def create_division_positions_by_meta():
     except Exception:
         raise
     else:
-        return record_created_envelop()
+        return record_created_envelop(request.json)
     
+
+@api.route('/divposmeta', methods=['GET'])
+def get_posmeta():
+    if not request.args:
+        return jsonify({
+            'message': 'Please send the facility_division_id as a arguments'
+        })
+    if 'fac_div_id' not in request.args:
+        return jsonify({
+            'message': 'Please senf the fac_div_id  as a arguments'
+
+        })
+    try:
+
+        results = db_session.query(DivisionPositionMeta).\
+                    filter(DivisionPositionMeta.fac_div_id == int(request.args['fac_div_id'])).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop([result.to_dict() for result in results])
+
 
 
