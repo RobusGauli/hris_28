@@ -301,7 +301,7 @@ def update_qualification_by_emp(emp_id, q_id):
         abort(400)
     try:
         db_session.query(Qualification).filter(Qualification.id == q_id).update(request.json)
-        eb_session.commit()
+        db_session.commit()
     except IntegrityError:
         return record_exists_envelop()
     except Exception:
@@ -454,7 +454,10 @@ def get_trainings_by_emp(id):
             'duration' : q.duration if q.duration else '',
             'city' : q.city if q.city else '',
             'state' : q.state if q.state else '',
-            'province' : q.province if q.province else ''            
+            'province' : q.province if q.province else '',
+            'start_date' : str(q.start_date) if q.start_date else '',
+            'end_date' : str(q.end_date) if q.end_date else '',
+            'country' : q.country if q.country else ''           
         } for q in trs)
         return records_json_envelop(list(trs))
 
