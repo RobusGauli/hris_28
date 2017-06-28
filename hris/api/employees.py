@@ -467,7 +467,7 @@ def update_training_by_emp(emp_id, t_id):
     #check to see if there is any empty values
     
     #check to see if the request has the right type of keys
-    result = request.json.keys() - set(col.name for col in Training.__mapper__.columns)
+    result = set(request.json.keys()) - set(col.name for col in Training.__mapper__.columns)
     if result:
         
         return extra_keys_envelop('Keys: {!r} not accepted'.format(', '.join(r for r in result)))
