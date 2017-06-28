@@ -248,9 +248,7 @@ def create_qualification_by_emp(id):
     if not request.json:
         abort(400)
     #check if there is empty field comming up
-    if not all(len(str(val).strip()) >= 1 for key, val in request.json.items()):
-        abort(411)
-    #clean up the values
+   #clean up the values
     qual = {key : val.strip() if isinstance(val, str) else val for key, val in request.json.items()}
     #insert
     print(qual)
@@ -320,9 +318,7 @@ def create_certification_by_emp(id):
     if not request.json:
         abort(400)
     #check if there is empty field comming up
-    if not all(len(str(val).strip()) >= 1 for key, val in request.json.items()):
-        abort(411)
-    
+ 
     #check if there is no registration number and registration body
     result = {'regulatory_body', 'registration_number'} - set(request.json.keys())
     if result:
@@ -378,10 +374,7 @@ def get_certifications_by_emp(id):
 def update_certification_by_emp(emp_id, c_id):
     if not request.json:
         abort(400)
-    #check to see if there is any empty values
-    if not all(len(str(val).strip()) for val in request.json.values()):
-        abort(411)
-    #check to see if the request has the right type of keys
+    
     result = set(request.json.keys()) - set(col.name for col in Certification.__mapper__.columns)
     if result:
         
@@ -416,8 +409,6 @@ def create_training_by_emp(id):
     if not request.json:
         abort(400)
     #check if there is empty field comming up
-    if not all(len(str(val).strip()) >= 1 for key, val in request.json.items()):
-        abort(411)
     
     #check if there is no registration number and registration body
     result = {'name'} - set(request.json.keys())
@@ -491,7 +482,7 @@ def update_training_by_emp(emp_id, t_id):
     try:
         db_session.query(Training).filter(Training.id == t_id).update(request.json)
         db_session.commit()
-        
+
     except IntegrityError as e:
         return record_exists_envelop()
     except Exception as e:
