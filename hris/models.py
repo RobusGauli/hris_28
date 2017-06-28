@@ -422,6 +422,7 @@ class DivisionPosition(Base):
         adict = {key : val if val else '' for key, val in vars(self).items() if not key.startswith('_') }
         if self.div_emp:
             adict['fullname'] = self.div_emp.first_name + self.div_emp.last_name
+            adict['employee_code'] = self.div_emp.employement_number
         else:
             adict['fullname'] = ''
         return adict
@@ -435,7 +436,7 @@ class DivisionPositionMeta(Base):
 
     id = Column(Integer, Sequence('meta_id'), primary_key=True)
     fac_div_id = Column(Integer, ForeignKey('facility_divisions.id'), nullable=False)
-    position_title = Column(String(50), unique=True, nullable=False)
+    position_title = Column(String(50), nullable=False)
     position_capacity = Column(Integer, nullable=False)
     occupied_position = Column(Integer)
 

@@ -474,8 +474,7 @@ def update_training_by_emp(emp_id, t_id):
     if not request.json:
         abort(400)
     #check to see if there is any empty values
-    if not all(len(str(val).strip()) for val in request.json.values()):
-        abort(411)
+    
     #check to see if the request has the right type of keys
     result = request.json.keys() - set(col.name for col in Training.__mapper__.columns)
     if result:
@@ -487,20 +486,18 @@ def update_training_by_emp(emp_id, t_id):
     cleaned_json = ((key, val.strip()) if isinstance(val, str) else (key, val) for key, val in request.json.items())
         #this means that it has extra set of keys that is not necessary
     #make the custom query
-    inner = ', '.join('{:s} = {!r}'.format(key, val) for key, val in cleaned_json)
-    query = '''UPDATE trainings SET {:s} WHERE id = {:d}'''.format(inner, t_id)
-    
-
     #try to executre
-    with engine.connect() as con:
-        try:
-            con.execute(query)
-        except IntegrityError as e:
-            return record_exists_envelop()
-        except Exception as e:
-            return fatal_error_envelop()
-        else:
-            return record_updated_envelop(request.json)
+    
+    try:
+        db_session.query(Training).filter(Training.id == t_id).update(request.json)
+        db_session.commit()
+        
+    except IntegrityError as e:
+        return record_exists_envelop()
+    except Exception as e:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
 
 
 #####employee extra details endpoints
