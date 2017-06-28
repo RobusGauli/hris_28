@@ -155,7 +155,7 @@ def create_division_positions_by_meta():
         divposmeta = DivisionPositionMeta(**request.json)
         db_session.add(divposmeta)
         #now get the total present count of the table
-        obj = session.query(DivisionPositionMeta).order_by(DivisionPositionMeta.id.desc()).first()
+        obj = db_session.query(DivisionPositionMeta).order_by(DivisionPositionMeta.id.desc()).first()
         c = obj.id + 1
         #for the capacity , addd the new divisionposition
         for i in range(position_capacity):
