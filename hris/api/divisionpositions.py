@@ -190,9 +190,14 @@ def get_posmeta():
 
         })
     try:
+        if 'position_title' not in request.args:
 
-        results = db_session.query(DivisionPositionMeta).\
-                    filter(DivisionPositionMeta.fac_div_id == int(request.args['fac_div_id'])).all()
+            results = db_session.query(DivisionPositionMeta).\
+                        filter(DivisionPositionMeta.fac_div_id == int(request.args['fac_div_id'])).all()
+        else:
+            results = db_session.query(DivisionPositionMeta).\
+                        filter(DivisionPositionMeta.fac_div_id == int(request.args['fac_div_id'])).\
+                        filter(DivisionPositionMeta.position_title==request.args['position_title']).all()
     except NoResultFound:
         return record_notfound_envelop()
     except Exception:
