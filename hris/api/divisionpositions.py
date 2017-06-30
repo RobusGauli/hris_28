@@ -129,8 +129,13 @@ def get_division_position(id):
 
 @api.route('/facdivisions/<int:f_id>/divisionpositions', methods=['GET'])
 def get_divpositions_by_facdiv(f_id):
+
     try:
-        dvs = db_session.query(DivisionPosition).filter(DivisionPosition.fac_div_id == f_id).all()
+        if 'position_title' not in request.args:
+            dvs = db_session.query(DivisionPosition).filter(DivisionPosition.fac_div_id == f_id).all()
+        dvs = db_session.query(DivisionPosition).filter(DivisionPosition.fac_div_id == f_id).\
+                                                filter(DivisionPosition.position_title==request.args['position_title']).all()
+        
     except NoResultFound:
         return record_notfound_envelop()
     except Exception:
