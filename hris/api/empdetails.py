@@ -905,3 +905,6 @@ def update_lang_by_emp(id, l_id):
         return fatal_error_envelop()
     else:
         return record_updated_envelop(request.json)
+
+
+

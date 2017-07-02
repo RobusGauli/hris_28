@@ -1109,7 +1109,10 @@ class EmployeeLanguage(Base):
     __tablename__ = 'employeelanguages'
 
     id = Column(Integer, Sequence('emplang_id'), primary_key=True)
-    ability = Column(Enum('READ', 'WRITE', 'SPEAK',  name='langability'))
+    read = Column(Boolean, default=False)
+    write = Column(Boolean, default=False)
+    speak = Column(Boolean, default=False)
+
     language_id  = Column(Integer, ForeignKey('languages.id'), nullable=False)
     employee_id = Column(Integer, ForeignKey('employees.id'), nullable=False)
 
@@ -1119,7 +1122,9 @@ class EmployeeLanguage(Base):
     def to_dict(self):
         return {
             'id' : self.id,
-            'ability' : self.ability if self.ability else '',
+            'read' : self.read,
+            'write': self.write,
+            'speak': self.speak,
             'employee' : self.employee.first_name + ' ' + self.employee.last_name,
             'language' : self.language.name if self.language else '',
             'language_id' : self.language_id if self.language_id else '',
