@@ -993,7 +993,7 @@ class Training(Base):
     organiser_name = Column(String(50))
     funding_source = Column(String(50))
     duration = Column(String(30))
-    institue = Column(String(50))
+    
     
     city = Column(String(50))
     state = Column(String(50))
@@ -1002,12 +1002,25 @@ class Training(Base):
     start_date = Column(Date)
     end_date = Column(Date)
     del_flag = Column(Boolean, default=False)
-
+    institute_id = Column(Integer, ForeignKey('institutes.id'))
     employee_id = Column(Integer, ForeignKey('employees.id'))
     employee = relationship('Employee', back_populates='trainings')
+    
+    institute = relationship('Institute', back_populates='trainings')
 
 
 
+class Institute(Base):
+    __tablename__ = 'institutes'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False, unique=True)
+    trainings = relationship('Training', back_populates='institute', cascade='all, delete, delete-orphan')
+
+    _val_mapper = lambda self, item : item if item else ''
+    to_dict = lambda self: {
+        key: self._val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')
+    }
 
 class PasswordPolicy(Base):
     __tablename__ = 'passwordpolicy'

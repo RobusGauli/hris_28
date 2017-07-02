@@ -22,7 +22,8 @@ from hris.models import (
     EmployeeExtra,
     Qualification,
     Certification,
-    Training
+    Training,
+    Institute
 )
 
 
@@ -403,6 +404,49 @@ def update_certification_by_emp(emp_id, c_id):
 
 #######------------------__##########################
 
+
+@api.route('/institutes', methods=['POST'])
+def create_institute():
+    if not request.json:
+        abort(400)
+    
+    try:
+        db_session.add(Institute(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/institutes', methods=['GET'])
+def get_institutes():
+    try:
+        its = db_session.query(Institute).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop([
+            it.to_dict() for it in its
+        ])
+
+@api.route('/institutes/<int:id>', methods=['PUT'])
+def update_institute(id):
+    if not request.json:
+        abort(400)
+    try:
+        db_session.query(Institute).filter(Institute.id == id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
 @api.route('/employees/<int:id>/trainings', methods=['POST'])
 @create_update_permission('agency_emp_perm')
 def create_training_by_emp(id):
@@ -424,7 +468,7 @@ def create_training_by_emp(id):
     print(id)
     trs['employee_id'] = id
     try:
-        print(id)
+        
         db_session.add(Training(**trs))
         db_session.commit()
     except IntegrityError as e:
@@ -450,7 +494,8 @@ def get_trainings_by_emp(id):
             'organiser_name' : q.organiser_name if q.organiser_name else '',
             'funding_source' : q.funding_source if q.funding_source else '',
             'duration' : q.duration if q.duration else '',
-            'institute' : q.institue if q.institue else '',
+            'institute_id': q.institute_id,
+            'institute' : q.institute.name if q.institute else '',
             'duration' : q.duration if q.duration else '',
             'city' : q.city if q.city else '',
             'state' : q.state if q.state else '',
