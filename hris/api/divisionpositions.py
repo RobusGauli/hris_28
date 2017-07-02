@@ -133,7 +133,8 @@ def get_divpositions_by_facdiv(f_id):
     try:
         if 'position_title' not in request.args:
             dvs = db_session.query(DivisionPosition).filter(DivisionPosition.fac_div_id == f_id).all()
-        dvs = db_session.query(DivisionPosition).filter(DivisionPosition.fac_div_id == f_id).\
+        else:
+            dvs = db_session.query(DivisionPosition).filter(DivisionPosition.fac_div_id == f_id).\
                                                 filter(DivisionPosition.position_title==request.args['position_title']).all()
         
     except NoResultFound:
