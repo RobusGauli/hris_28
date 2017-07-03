@@ -282,7 +282,7 @@ def get_qualifications_by_emp(id):
     else:
         quals = ({
             'id' : q.id,
-            'name' : q.name if q.name else '',
+            'name' : q.qualification_name.name if q.qualification_name else '',
             'institute_name' : q.institute_name if q.institute_name else '',
             'city' : q.city if q.city else '',
             'state' : q.state if q.state else '',
@@ -320,11 +320,7 @@ def create_certification_by_emp(id):
         abort(400)
     #check if there is empty field comming up
  
-    #check if there is no registration number and registration body
-    result = {'regulatory_body', 'registration_number'} - set(request.json.keys())
-    if result:
-        return keys_require_envelop('"regulatory_body" and "regstration_number" is required')
-    #clean up the values
+    
     cert = {key : val.strip() if isinstance(val, str) else val for key, val in request.json.items()}
     #insert
     cert['employee_id'] = id
@@ -356,8 +352,8 @@ def get_certifications_by_emp(id):
         certs = ({
             'id' : q.id,
             'registration_number' : q.registration_number if q.registration_number else '',
-            'regulatory_body' : q.regulatory_body if q.regulatory_body else '',
-            'registration_type' : q.registration_type if q.registration_type else '',
+            'regulatory_body' : q.regulatory_body_name.name if q.regulatory_body_name else '',
+            'registration_type' : q.registration_type_name.name if q.registration_type_name else '',
             'last_renewal_date' : str(q.last_renewal_date) if q.last_renewal_date else '',
             'expiry_date' : str(q.expiry_date) if q.expiry_date else '',
             'issue_date' : str(q.issue_data) if q.issue_data else '',
@@ -376,16 +372,6 @@ def update_certification_by_emp(emp_id, c_id):
     if not request.json:
         abort(400)
     
-    result = set(request.json.keys()) - set(col.name for col in Certification.__mapper__.columns)
-    if result:
-        
-        return extra_keys_envelop('Keys: {!r} not accepted'.format(', '.join(r for r in result)))
-    
-    #clearn up the values for string
-    #generator expression
-    cleaned_json = ((key, val.strip()) if isinstance(val, str) else (key, val) for key, val in request.json.items())
-        #this means that it has extra set of keys that is not necessary
-    #make the custom query
     
     
 
@@ -490,8 +476,8 @@ def get_trainings_by_emp(id):
     else:
         trs = ({
             'id' : q.id,
-            'name' : q.name if q.name else '',
-            'organiser_name' : q.organiser_name if q.organiser_name else '',
+            'name' : q.training_name.name if q.training_name else '',
+            'organiser_name' : q.organizer_name.name if q.organizer_name else '',
             'funding_source' : q.funding_source if q.funding_source else '',
             'duration' : q.duration if q.duration else '',
             'institute_id': q.institute_id,
@@ -515,17 +501,6 @@ def update_training_by_emp(emp_id, t_id):
     #check to see if there is any empty values
     
     #check to see if the request has the right type of keys
-    result = set(request.json.keys()) - set(col.name for col in Training.__mapper__.columns)
-    if result:
-        
-        return extra_keys_envelop('Keys: {!r} not accepted'.format(', '.join(r for r in result)))
-    
-    #clearn up the values for string
-    #generator expression
-    cleaned_json = ((key, val.strip()) if isinstance(val, str) else (key, val) for key, val in request.json.items())
-        #this means that it has extra set of keys that is not necessary
-    #make the custom query
-    #try to executre
     
     try:
         db_session.query(Training).filter(Training.id == t_id).update(request.json)

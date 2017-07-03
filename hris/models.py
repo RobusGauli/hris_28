@@ -804,6 +804,7 @@ class EmployementHistory(Base):
     id = Column(Integer, Sequence('emp_his_id'), primary_key=True)
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
+    employer_name = Column(String(50))
     position = Column(String(50))
     reason_leaving = Column(String(50))
     description = Column(String(100))
@@ -949,7 +950,7 @@ class Qualification(Base):
     __tablename__ = 'qualifications'
 
     id = Column(Integer, Sequence('qual_id'), primary_key=True)
-    name = Column(String(60))
+    qualification_name_id = Column(Integer, ForeignKey('qualificationnames.id'))
     institute_name = Column(String(50))
     city = Column(String(30))
     state = Column(String(30))
@@ -962,6 +963,19 @@ class Qualification(Base):
     employee_id = Column(Integer, ForeignKey('employees.id'))
     #relationship
     employee = relationship('Employee', back_populates='qualifications')
+    qualification_name = relationship('QualificationName', back_populates='qualifications')
+
+class QualificationName(Base):
+    __tablename__ = 'qualificationnames'
+    id = Column(Integer, Sequence('qualification_name_id'), primary_key=True)
+    name = Column(String(50), unique=True, nullable=False)
+
+    qualifications = relationship('Qualification', back_populates='qualification_name', cascade='all, delete, delete-orphan')
+
+    _val_mapper = lambda self, item : item if item else ''
+    to_dict = lambda self: {
+        key: self._val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')
+    }
 
 
 class Certification(Base):
@@ -969,13 +983,15 @@ class Certification(Base):
 
     id = Column(Integer, Sequence('cert_id'), primary_key=True)
     registration_number = Column(String(40), nullable=False, unique=True)
-    regulatory_body = Column(String(40), nullable=False)
+    regulatory_body_name_id = Column(Integer, ForeignKey('registrationbodynames.id'))
     issue_data = Column(Date)
     regulatory_body_address_one = Column(String(40))
     regulatory_body_address_two = Column(String(40))
     regulatory_body_address_three = Column(String(40))
     regulatory_body_address_country = Column(String(50))
-    registration_type = Column(String(40))
+
+    registration_type_name_id = Column(Integer, ForeignKey('registrationtypenames.id'))
+    
     last_renewal_date = Column(Date)
     expiry_date = Column(Date)
     del_flag = Column(Boolean, default=False)
@@ -983,18 +999,43 @@ class Certification(Base):
     employee_id = Column(Integer, ForeignKey('employees.id'))
     #relationship
     employee = relationship('Employee', back_populates='certifications')
+    registration_type_name  = relationship('RegistrationTypeName', back_populates='certifications')
+    registration_body_name = relationship('RegistrationBodyName', back_populates='certifications')
 
+class RegistrationTypeName(Base):
+    __tablename__ = 'registrationtypenames'
+    id = Column(Integer, Sequence('registration_type_id'), primary_key=True)
+    name = Column(String(50), unique=True, nullable=False)
+
+    certifications = relationship('Certification', back_populates='registration_type_name', cascade='all, delete, delete-orphan')
+
+    _val_mapper = lambda self, item : item if item else ''
+    to_dict = lambda self: {
+        key: self._val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')
+    }
+
+class RegistrationBodyName(Base):
+    __tablename__ = 'registrationbodynames'
+
+    id = Column(Integer, Sequence('registration_body_id'), primary_key=True)
+    name = Column(String(50), unique=True, nullable=False)
+    certifications = relationship('Certification', back_populates='registration_body_name', cascade='all, delete, delete-orphan')
+
+    _val_mapper = lambda self, item : item if item else ''
+    to_dict = lambda self: {
+        key: self._val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')
+    }
 
 class Training(Base):
     __tablename__ = 'trainings'
 
     id = Column(Integer, Sequence('t_id'), primary_key=True)
-    name = Column(String(50), nullable=False)
-    organiser_name = Column(String(50))
+    training_id = Column(Integer, ForeignKey('trainingsnames.id'))
+    organizer_id = Column(Integer, ForeignKey('organizernames.id'))
     funding_source = Column(String(50))
     duration = Column(String(30))
     
-    
+    cost = Column(String(10))
     city = Column(String(50))
     state = Column(String(50))
     province = Column(String(50))
@@ -1007,6 +1048,32 @@ class Training(Base):
     employee = relationship('Employee', back_populates='trainings')
     
     institute = relationship('Institute', back_populates='trainings')
+    training_name = relationship('TrainingName', back_populates='trainings')
+    organizer_name = relationship('OrganizerName', back_populates='trainings')
+
+class TrainingName(Base):
+    __tablename__ = 'trainingsnames'
+    id = Column(Integer, Sequence('trainingnameid'), primary_key=True)
+    name = Column(String(50), unique=True, nullable=False)
+
+    trainings = relationship('Training', back_populates='training_name', cascade='all, delete, delete-orphan')
+
+    _val_mapper = lambda self, item : item if item else ''
+    to_dict = lambda self: {
+        key: self._val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')
+    }
+
+class OrganizerName(Base):
+    __tablename__ = 'organizernames'
+    id = Column(Integer, Sequence('organizernamesid'), primary_key=True)
+    name = Column(String(50), unique=True, nullable=False)
+
+    trainings = relationship('Training', back_populates='organizer_name', cascade='all, delete, delete-orphan')
+
+    _val_mapper = lambda self, item : item if item else ''
+    to_dict = lambda self: {
+        key: self._val_mapper(val) for key, val in vars(self).items() if not key.startswith('_')
+    }
 
 
 
@@ -1143,3 +1210,4 @@ class EmployeeLanguage(Base):
             'language_id' : self.language_id if self.language_id else '',
             'employee_id' : self.employee_id if self.employee_id else ''
         }
+

@@ -38,7 +38,12 @@ from hris.models import (
     EmployeeAddress,
     EmployeeEducation,
     Language,
-    EmployeeLanguage
+    EmployeeLanguage,
+    TrainingName,
+    OrganizerName,
+    RegistrationBodyName,
+    RegistrationTypeName,
+    QualificationName 
 )
 
 
@@ -908,3 +913,232 @@ def update_lang_by_emp(id, l_id):
 
 
 
+
+@api.route('/trainingsnames', methods=['POST'])
+def create_training_names():
+    if not request.json:
+        abort(400)
+    
+    try:
+        db_session.add(TrainingName(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/trainingsnames', methods=['GET'])
+def get_training_names():
+    try:
+        langs = db_session.query(TrainingName).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop([
+            l.to_dict() for l in langs
+        ])
+
+@api.route('/trainingsnames/<int:id>', methods=['PUT'])
+def update_trainingsnames(id):
+    if not request.json:
+        abort(400)
+    
+    try:
+        db_session.query(TrainingName).filter(TrainingName.id == id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
+
+
+
+@api.route('/organizernames', methods=['POST'])
+def create_organizer_names():
+    if not request.json:
+        abort(400)
+    
+    try:
+        db_session.add(OrganizerName(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/organizernames', methods=['GET'])
+def get_organizer_names():
+    try:
+        langs = db_session.query(OrganizerName).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop([
+            l.to_dict() for l in langs
+        ])
+
+@api.route('/organizernames/<int:id>', methods=['PUT'])
+def update_organizernames(id):
+    if not request.json:
+        abort(400)
+    
+    try:
+        db_session.query(OrganizerName).filter(OrganizerName.id == id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
+
+
+
+@api.route('/registrationtypenames', methods=['POST'])
+def create_registrationtype_names():
+    if not request.json:
+        abort(400)
+    
+    try:
+        db_session.add(RegistrationTypeName(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/registrationtypenames', methods=['GET'])
+def get_registrationtype_names():
+    try:
+        langs = db_session.query(RegistrationTypeName).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop([
+            l.to_dict() for l in langs
+        ])
+
+@api.route('/registrationtypenames/<int:id>', methods=['PUT'])
+def update_registrationtypenames(id):
+    if not request.json:
+        abort(400)
+    
+    try:
+        db_session.query(RegistrationTypeName).filter(RegistrationTypeName.id == id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
+
+
+
+@api.route('/registrationbodynames', methods=['POST'])
+def create_registrationbody_names():
+    if not request.json:
+        abort(400)
+    
+    try:
+        db_session.add(RegistrationBodyName(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/registrationbodynames', methods=['GET'])
+def get_registrationbody_names():
+    try:
+        langs = db_session.query(RegistrationBodyName).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop([
+            l.to_dict() for l in langs
+        ])
+
+@api.route('/registrationbodynames/<int:id>', methods=['PUT'])
+def update_registrationbodynames(id):
+    if not request.json:
+        abort(400)
+    
+    try:
+        db_session.query(RegistrationBodyName).filter(RegistrationBodyName.id == id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
+
+
+
+
+
+
+@api.route('/qualificationnames', methods=['POST'])
+def create_qualificationy_names():
+    if not request.json:
+        abort(400)
+    
+    try:
+        db_session.add(QualificationName(**request.json))
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_created_envelop(request.json)
+
+@api.route('/qualificationnames', methods=['GET'])
+def get_qualificationy_names():
+    try:
+        langs = db_session.query(QualificationName).all()
+    except NoResultFound:
+        return record_notfound_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return records_json_envelop([
+            l.to_dict() for l in langs
+        ])
+
+@api.route('/qualificationnames/<int:id>', methods=['PUT'])
+def update_qualificationnames(id):
+    if not request.json:
+        abort(400)
+    
+    try:
+        db_session.query(QualificationName).filter(QualificationName.id == id).update(request.json)
+        db_session.commit()
+    except IntegrityError:
+        return record_exists_envelop()
+    except Exception:
+        return fatal_error_envelop()
+    else:
+        return record_updated_envelop(request.json)
