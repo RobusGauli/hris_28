@@ -352,7 +352,7 @@ def get_certifications_by_emp(id):
         certs = ({
             'id' : q.id,
             'registration_number' : q.registration_number if q.registration_number else '',
-            'regulatory_body' : q.regulatory_body_name.name if q.regulatory_body_name else '',
+            'regulatory_body' : q.registration_body_name.name if q.regulatory_body_name else '',
             'registration_type' : q.registration_type_name.name if q.registration_type_name else '',
             'last_renewal_date' : str(q.last_renewal_date) if q.last_renewal_date else '',
             'expiry_date' : str(q.expiry_date) if q.expiry_date else '',
