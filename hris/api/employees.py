@@ -441,15 +441,12 @@ def create_training_by_emp(id):
     #check if there is empty field comming up
     
     #check if there is no registration number and registration body
-    result = {'name'} - set(request.json.keys())
-    if result:
-        return keys_require_envelop('key : "name" is required')
-    #clean up the values
+    
     trs = {key : val.strip() if isinstance(val, str) else val for key, val in request.json.items()}
     #insert
     ###################################
-    trs['start_date'] = '01-feb-2012'
-    trs['end_date'] = '03-feb-2005'
+    #trs['start_date'] = '01-feb-2012'
+    #trs['end_date'] = '03-feb-2005'
     ##########################
     print(id)
     trs['employee_id'] = id
