@@ -485,7 +485,10 @@ def get_trainings_by_emp(id):
             'province' : q.province if q.province else '',
             'start_date' : str(q.start_date) if q.start_date else '',
             'end_date' : str(q.end_date) if q.end_date else '',
-            'country' : q.country if q.country else ''           
+            'country' : q.country if q.country else '',
+            'training_id': q.training_id,
+            'cost': q.cost,
+            'organizer_id': q.organizer_id           
         } for q in trs)
         return records_json_envelop(list(trs))
 
