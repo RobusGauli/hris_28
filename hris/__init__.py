@@ -51,7 +51,8 @@ from hris.models import (
     LLG,
     DivisionTypeSetup,
     Division,
-    FacilityDivision
+    FacilityDivision,
+    PasswordPolicy
 )
 ROLES_PERMISSION = {}
 
@@ -130,6 +131,7 @@ def create_app(config_name=None, main=True):
     admin.add_view(ModelView(EmployeePosition, db_session))
     
     admin.add_view(ModelView(Employee, db_session))
+    admin.add_view(ModelView(PasswordPolicy, db_session))
     
     return app
 
