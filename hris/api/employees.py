@@ -359,7 +359,9 @@ def get_certifications_by_emp(id):
             'issue_date' : str(q.issue_data) if q.issue_data else '',
             'regulatory_body_address_one' : q.regulatory_body_address_one if q.regulatory_body_address_one else '',
             'regulatory_body_address_two' : q.regulatory_body_address_two if q.regulatory_body_address_two else '',
-            'regulatory_body_address_country' : q.regulatory_body_address_country if q.regulatory_body_address_country else ''
+            'regulatory_body_address_country' : q.regulatory_body_address_country if q.regulatory_body_address_country else '',
+            'registration_body_name_id': q.regulatory_body_name_id,
+            'registration_type_name_id': q.registration_type_name_id
             
             
         } for q in certs)
