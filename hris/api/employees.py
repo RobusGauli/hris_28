@@ -289,7 +289,9 @@ def get_qualifications_by_emp(id):
             'province' : q.province if q.province else '',
             'country' : q.country if q.country else '',
             'start_date' : str(q.start_date) if q.start_date else '',
-            'end_date' : str(q.end_date) if q.end_date else ''
+            'end_date' : str(q.end_date) if q.end_date else '',
+            'qualification_name_id': q.qualification_name_id,
+            'qualification_name' : q.qualification_name.name if q.qualification_name else ''
         } for q in qls)
         return records_json_envelop(list(quals))
 
